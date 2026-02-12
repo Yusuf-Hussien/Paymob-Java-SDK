@@ -1,7 +1,6 @@
 package com.paymob.sdk.services;
 
 import com.paymob.sdk.client.PaymobClient;
-import java.util.Map;
 
 public class TransactionService {
     private final PaymobClient client;

@@ -12,7 +12,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Map;
 
 public class PaymobClient {
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -42,7 +41,7 @@ public class PaymobClient {
                 requestBuilder.GET();
             }
 
-            // TODO: Add Authorization header logic here if needed globally, 
+            // TODO: Add Authorization header logic here if needed globally,
             // but Paymob mostly uses body parameters or query params for auth tokens.
 
             HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());

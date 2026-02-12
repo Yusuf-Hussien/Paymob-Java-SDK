@@ -18,6 +18,11 @@ buildNumber.properties
 *.project
 *.settings/
 
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+
