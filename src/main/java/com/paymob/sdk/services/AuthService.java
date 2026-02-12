@@ -9,7 +9,11 @@ public class AuthService {
     private final PaymobClient client;
 
     public AuthService() {
-        this.client = new PaymobClient();
+        this(new PaymobClient());
+    }
+
+    public AuthService(PaymobClient client) {
+        this.client = client;
     }
 
     /**

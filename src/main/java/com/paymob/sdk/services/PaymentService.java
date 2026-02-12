@@ -8,7 +8,11 @@ public class PaymentService {
     private final PaymobClient client;
 
     public PaymentService() {
-        this.client = new PaymobClient();
+        this(new PaymobClient());
+    }
+
+    public PaymentService(PaymobClient client) {
+        this.client = client;
     }
 
     public PaymentKeyResponse requestPaymentKey(PaymentKeyRequest request) {

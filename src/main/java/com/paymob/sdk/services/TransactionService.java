@@ -6,7 +6,11 @@ public class TransactionService {
     private final PaymobClient client;
 
     public TransactionService() {
-        this.client = new PaymobClient();
+        this(new PaymobClient()); // Default constructor
+    }
+
+    public TransactionService(PaymobClient client) {
+        this.client = client;
     }
 
     public Object getTransaction(long transactionId, String authToken) {

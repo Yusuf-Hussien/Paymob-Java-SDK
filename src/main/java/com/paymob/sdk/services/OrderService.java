@@ -8,7 +8,11 @@ public class OrderService {
     private final PaymobClient client;
 
     public OrderService() {
-        this.client = new PaymobClient();
+        this(new PaymobClient());
+    }
+
+    public OrderService(PaymobClient client) {
+        this.client = client;
     }
 
     public OrderResponse createOrder(String authToken, String amountCents, String currency, String merchantOrderId) {
