@@ -56,70 +56,103 @@ Add the following to your `pom.xml`:
 
 ## Usage
 
-### 1. Initialization
-Initialize the SDK with your API Key (from Paymob Dashboard).
+## Usage
+
+### 1. Configuration
+Initialize the SDK with your credentials. You can set the target **Region** (Egypt, UAE, KSA, Oman) to automatically configure the base URLs.
+
 ```java
 import com.paymob.sdk.Paymob;
+import com.paymob.sdk.models.Region;
 
-Paymob.init("YOUR_API_KEY");
-// Optional: Set timeout
-Paymob.setTimeoutSeconds(60);
+// Initialize with V2 credential (Recommended for new integrations)
+// API Key, Secret Key, Public Key, Region
+Paymob.init("YOUR_API_KEY", "YOUR_SECRET_KEY", "YOUR_PUBLIC_KEY", Region.UAE);
+
+// OR Initialize with V1 credentials (Legacy)
+// Paymob.init("YOUR_API_KEY");
 ```
 
-### 2. Authenticate
-Get an Authentication Token to use for subsequent requests.
-```java
-import com.paymob.sdk.services.AuthService;
-import com.paymob.sdk.models.auth.AuthResponse;
+### 2. Unified Checkout (Intention API) - Recommended
+The simplified flow to accept payments using a single step.
 
+```java
+import com.paymob.sdk.services.IntentionService;
+import com.paymob.sdk.models.intention.*;
+
+IntentionService intentionService = new IntentionService();
+
+// 1. Create Intention
+IntentionRequest request = new IntentionRequest();
+request.setAmount(1000); // 10.00 (amount in cents)
+request.setCurrency("AED");
+request.setPaymentMethods(List.of(456789)); // Integration IDs
+
+// Minimum required billing data
+IntentionRequest.BillingData billingData = new IntentionRequest.BillingData();
+billingData.setFirstName("John");
+billingData.setLastName("Doe");
+billingData.setEmail("john@example.com");
+billingData.setPhoneNumber("+971500000000");
+request.setBillingData(billingData);
+
+IntentionResponse response = intentionService.createIntention(request);
+
+// 2. Redirect User to Checkout Page
+String checkoutUrl = intentionService.getUnifiedCheckoutUrl(response.getClientSecret());
+System.out.println("Redirect User to: " + checkoutUrl);
+```
+
+### 3. Transaction Management
+Control your transactions using the Secret Key.
+
+```java
+import com.paymob.sdk.services.TransactionService;
+
+TransactionService txService = new TransactionService();
+
+// Get Transaction Details
+Object txDetails = txService.getTransaction(123456L, "bearer_token_if_needed");
+
+// Void an Auth Transaction
+txService.voidTransaction(123456L);
+
+// Refund a Transaction
+txService.refundTransaction(123456L, 1000); // Refund 10.00
+
+// Capture an Auth Transaction
+txService.captureTransaction(123456L, 1000); // Capture 10.00
+```
+
+### 4. Legacy Standard Flow (Auth -> Order -> Key)
+Use this flow if you need granular control over steps or are using the classic iFrame integration.
+
+#### Step 1: Authentication
+```java
 AuthService authService = new AuthService();
 AuthResponse auth = authService.authenticate();
 String authToken = auth.getToken();
 ```
 
-### 3. Create an Order
+#### Step 2: Create Order
 ```java
-import com.paymob.sdk.services.OrderService;
-import com.paymob.sdk.models.orders.OrderResponse;
-
 OrderService orderService = new OrderService();
-OrderResponse order = orderService.createOrder(
-    authToken, 
-    "10000", // amount in cents (100.00 EGP)
-    "EGP", 
-    "ORDER_12345" // Merchant Order ID
-);
+OrderResponse order = orderService.createOrder(authToken, "10000", "EGP", "ORDER_123");
 String orderId = String.valueOf(order.getId());
 ```
 
-### 4. Generate Payment Key
+#### Step 3: Request Payment Key
 ```java
-import com.paymob.sdk.services.PaymentService;
-import com.paymob.sdk.models.payments.PaymentKeyRequest;
-import com.paymob.sdk.models.payments.PaymentKeyResponse;
-
 PaymentService paymentService = new PaymentService();
 PaymentKeyRequest keyRequest = new PaymentKeyRequest();
 keyRequest.setAuthToken(authToken);
 keyRequest.setAmountCents("10000");
-keyRequest.setExpiration(3600);
 keyRequest.setOrderId(orderId);
-keyRequest.setIntegrationId(123456); // From Paymob Dashboard
-keyRequest.setCurrency("EGP");
-
-// Billing Data is mandatory
-PaymentKeyRequest.BillingData billingData = new PaymentKeyRequest.BillingData();
-billingData.firstName = "John";
-billingData.lastName = "Doe";
-billingData.email = "john@example.com";
-billingData.phoneNumber = "+201234567890";
-keyRequest.setBillingData(billingData);
-
+// ... set billing data ...
 PaymentKeyResponse keyResponse = paymentService.requestPaymentKey(keyRequest);
 String paymentToken = keyResponse.getToken();
-
-// Use paymentToken in iFrame or mobile SDKs
 ```
+
 
 ## License
 MIT

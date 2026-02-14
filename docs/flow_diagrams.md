@@ -53,3 +53,54 @@ Generate a payment key for a specific order. This key encapsulates the amount an
 Use the Payment Key to render the payment interface (iFrame or Mobile SDK) on the client side.
 *   After payment, Paymob redirects the user and sends a callback (webhook) to the merchant server.
 *   **SDK Method**: `TransactionService.getTransaction()` can be used to query transaction status using the Transaction ID received in the callback.
+
+---
+
+## Unified Checkout Flow (Intention API)
+
+This flow simplifies the process into a single step: Creating an Intention.
+
+```mermaid
+sequenceDiagram
+    participant Merchant as Merchant Server
+    participant Paymob as Paymob API
+    participant User as Customer Browser
+
+    Note over Merchant, Paymob: 1. Create Intention
+    Merchant->>Paymob: POST /v1/intention/ (Secret Key)
+    Paymob-->>Merchant: Intention Created (Client Secret)
+
+    Note over Merchant, User: 2. Redirect User
+    Merchant->>User: Redirect to Unified Checkout URL
+    User->>Paymob: Complete Payment
+    Paymob-->>User: Success/Failure Page
+    Paymob-->>Merchant: Webhook (Transaction Data)
+```
+
+### Steps
+1.  **Create Intention**: Call `IntentionService.createIntention()` with amount, currency, and billing data.
+2.  **Redirect**: Generate the redirect URL using `IntentionService.getUnifiedCheckoutUrl(clientSecret)`.
+
+---
+
+## Transaction Control Flow
+
+Manage your transactions after they are created.
+
+```mermaid
+sequenceDiagram
+    participant Merchant as Merchant Server
+    participant Paymob as Paymob API
+
+    Note over Merchant, Paymob: Refund
+    Merchant->>Paymob: POST /api/acceptance/void_refund/refund (Secret Key)
+    Paymob-->>Merchant: Refund Successful
+
+    Note over Merchant, Paymob: Void
+    Merchant->>Paymob: POST /api/acceptance/void_refund/void (Secret Key)
+    Paymob-->>Merchant: Void Successful
+
+    Note over Merchant, Paymob: Capture
+    Merchant->>Paymob: POST /api/acceptance/capture (Secret Key)
+    Paymob-->>Merchant: Capture Successful
+```
