@@ -2,11 +2,13 @@ package com.paymob.sdk.services;
 
 import com.paymob.sdk.client.PaymobClient;
 
+import com.paymob.sdk.models.transaction.TransactionControlRequest;
+
 public class TransactionService {
     private final PaymobClient client;
 
     public TransactionService() {
-        this(new PaymobClient()); // Default constructor
+        this(new PaymobClient());
     }
 
     public TransactionService(PaymobClient client) {
@@ -14,10 +16,22 @@ public class TransactionService {
     }
 
     public Object getTransaction(long transactionId, String authToken) {
-        return client.get("/acceptance/transactions/" + transactionId, Object.class);
+        return client.getWithBearerToken("/acceptance/transactions/" + transactionId, authToken, Object.class);
     }
 
-    // Void and Refund usually require POST requests to specific endpoints
-    // void: /acceptance/void_refund/void?token=...
-    // refund: /acceptance/void_refund/refund?token=...
+    public Object voidTransaction(long transactionId) {
+        TransactionControlRequest request = new TransactionControlRequest(transactionId);
+        return client.postWithSecretKey("/api/acceptance/void_refund/void", request, Object.class);
+    }
+
+    public Object refundTransaction(long transactionId, int amountCents) {
+        TransactionControlRequest request = new TransactionControlRequest(transactionId, amountCents);
+        return client.postWithSecretKey("/api/acceptance/void_refund/refund", request, Object.class);
+    }
+
+    public Object captureTransaction(long transactionId, int amountCents) {
+        TransactionControlRequest request = new TransactionControlRequest(transactionId, amountCents);
+        return client.postWithSecretKey("/api/acceptance/capture", request, Object.class);
+    }
+
 }
