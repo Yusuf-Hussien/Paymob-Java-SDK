@@ -25,26 +25,57 @@ public class PaymobClient {
         return sendRequest(endpoint, "GET", null, responseType);
     }
 
+    public <T> T postWithSecretKey(String endpoint, Object requestBody, Class<T> responseType) {
+        return sendRequestWithSecretKey(endpoint, "POST", requestBody, responseType);
+    }
+
+    public <T> T getWithSecretKey(String endpoint, Class<T> responseType) {
+        return sendRequestWithSecretKey(endpoint, "GET", null, responseType);
+    }
+
+    public <T> T getWithBearerToken(String endpoint, String token, Class<T> responseType) {
+        return executeRequest(endpoint, "GET", null, responseType, false, token);
+    }
+
     private <T> T sendRequest(String endpoint, String method, Object requestBody, Class<T> responseType) {
+        return executeRequest(endpoint, method, requestBody, responseType, false, null);
+    }
+
+    private <T> T sendRequestWithSecretKey(String endpoint, String method, Object requestBody, Class<T> responseType) {
+        return executeRequest(endpoint, method, requestBody, responseType, true, null);
+    }
+
+    private <T> T executeRequest(String endpoint, String method, Object requestBody, Class<T> responseType,
+            boolean useSecretKey, String bearerToken) {
         try {
             String url = Paymob.getBaseUrl() + endpoint;
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofSeconds(Paymob.getTimeoutSeconds()))
                     .header("Content-Type", "application/json")
-                    .header("Accept", "application/json");
+                    .timeout(Duration.ofSeconds(Paymob.getTimeoutSeconds()));
 
-            if ("POST".equalsIgnoreCase(method)) {
-                String jsonBody = objectMapper.writeValueAsString(requestBody);
-                requestBuilder.POST(HttpRequest.BodyPublishers.ofString(jsonBody));
-            } else if ("GET".equalsIgnoreCase(method)) {
-                requestBuilder.GET();
+            if (useSecretKey) {
+                String secret = Paymob.getSecretKey();
+                if (secret == null) {
+                    throw new PaymobException("Secret Key is not initialized. Call Paymob.init() with Secret Key.");
+                }
+                builder.header("Authorization", "Token " + secret);
+            } else if (bearerToken != null) {
+                builder.header("Authorization", "Bearer " + bearerToken);
             }
 
-            // TODO: Add Authorization header logic here if needed globally,
-            // but Paymob mostly uses body parameters or query params for auth tokens.
+            if (requestBody != null) {
+                String json = objectMapper.writeValueAsString(requestBody);
+                builder.method(method, HttpRequest.BodyPublishers.ofString(json));
+            } else {
+                if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) {
+                    builder.method(method, HttpRequest.BodyPublishers.noBody());
+                } else {
+                    builder.method(method, HttpRequest.BodyPublishers.noBody());
+                }
+            }
 
-            HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
 
             int statusCode = response.statusCode();
             String responseBody = response.body();
@@ -52,7 +83,7 @@ public class PaymobClient {
             if (statusCode >= 200 && statusCode < 300) {
                 return objectMapper.readValue(responseBody, responseType);
             } else {
-                throw new PaymobApiException("Paymob API Error: " + statusCode, statusCode, responseBody);
+                throw new PaymobApiException("API Request failed with status: " + statusCode, statusCode, responseBody);
             }
 
         } catch (JsonProcessingException e) {
