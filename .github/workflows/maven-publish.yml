@@ -41,15 +41,16 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        server-id: ossrh # Value of the distributionManagement repository id
-        server-username: MAVEN_USERNAME # env variable for username
-        server-password: MAVEN_PASSWORD # env variable for password
-        gpg-private-key: ${{ secrets.GPG_SECRET_KEY_BASE64 }} # Value of the GPG private key to import
-        gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG passphrase
+        cache: 'maven'
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
     - name: Publish to Maven Central
       run: mvn --batch-mode deploy -P release
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
