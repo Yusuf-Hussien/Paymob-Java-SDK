@@ -11,6 +11,7 @@ public class Paymob {
     private static volatile String apiKey;
     private static volatile String secretKey;
     private static volatile String publicKey;
+    private static volatile String hmacSecret;
     private static volatile Region region = Region.EGYPT;
     private static volatile int timeoutSeconds = 60;
 
@@ -25,7 +26,7 @@ public class Paymob {
      * @param apiKey The Paymob API Key.
      */
     public static void init(String apiKey) {
-        init(apiKey, null, null, Region.EGYPT);
+        init(apiKey, null, null, null, Region.EGYPT);
     }
 
     /**
@@ -37,9 +38,14 @@ public class Paymob {
      * @param region
      */
     public static void init(String apiKey, String secretKey, String publicKey, Region region) {
+        init(apiKey, secretKey, publicKey, null, region);
+    }
+
+    public static void init(String apiKey, String secretKey, String publicKey, String hmacSecret, Region region) {
         Paymob.apiKey = apiKey;
         Paymob.secretKey = secretKey;
         Paymob.publicKey = publicKey;
+        Paymob.hmacSecret = hmacSecret;
         Paymob.region = region != null ? region : Region.EGYPT;
     }
 
@@ -56,6 +62,10 @@ public class Paymob {
 
     public static String getPublicKey() {
         return publicKey;
+    }
+
+    public static String getHmacSecret() {
+        return hmacSecret;
     }
 
     public static String getBaseUrl() {

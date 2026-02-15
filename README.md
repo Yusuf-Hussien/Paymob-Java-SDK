@@ -56,7 +56,6 @@ Add the following to your `pom.xml`:
 
 ## Usage
 
-## Usage
 
 ### 1. Configuration
 Initialize the SDK with your credentials. You can set the target **Region** (Egypt, UAE, KSA, Oman) to automatically configure the base URLs.
@@ -151,6 +150,37 @@ keyRequest.setOrderId(orderId);
 // ... set billing data ...
 PaymentKeyResponse keyResponse = paymentService.requestPaymentKey(keyRequest);
 String paymentToken = keyResponse.getToken();
+```
+
+
+### 5. Callback Verification (HMAC)
+Verify callback requests from Paymob (Webhooks) using your HMAC Secret.
+
+```java
+import com.paymob.sdk.Paymob;
+import com.paymob.sdk.utils.HmacUtil;
+import com.paymob.sdk.models.Region;
+
+// 1. Initialize with HMAC Secret
+Paymob.init("API_KEY", "SECRET_KEY", "PUBLIC_KEY", "HMAC_SECRET", Region.UAE);
+
+// 2. In your Webhook Controller
+public void handleWebhook(@RequestParam Map<String, String> params) {
+    String hmac = params.get("hmac");
+    
+    // Concatenate values according to Paymob docs order
+    // Example: amount_cents + created_at + currency + error_occured + ...
+    // Note: You must implement the concatenation logic based on the specific callback type
+    String data = params.get("amount_cents") + params.get("created_at") /* ... */;
+    
+    boolean isValid = HmacUtil.verifyHmac(hmac, data);
+    
+    if (isValid) {
+        // Process valid callback
+    } else {
+        // Reject invalid request
+    }
+}
 ```
 
 
