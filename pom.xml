@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.paymob</groupId>
+    <groupId>io.github.yusuf-hussien</groupId>
     <artifactId>paymob-java-sdk</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Paymob Java SDK</name>
     <description>Java SDK for Paymob Payment Gateway</description>
-    <url>https://github.com/paymob/paymob-java-sdk</url>
+    <url>https://github.com/Yusuf-Hussien/Paymob-Java-SDK</url>
 
     <licenses>
         <license>
@@ -30,9 +30,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/paymob/paymob-java-sdk.git</connection>
-        <developerConnection>scm:git:ssh://github.com:paymob/paymob-java-sdk.git</developerConnection>
-        <url>http://github.com/paymob/paymob-java-sdk/tree/main</url>
+        <connection>scm:git:git://github.com/Yusuf-Hussien/Paymob-Java-SDK.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Yusuf-Hussien/Paymob-Java-SDK.git</developerConnection>
+        <url>https://github.com/Yusuf-Hussien/Paymob-Java-SDK/tree/main</url>
     </scm>
 
     <properties>
