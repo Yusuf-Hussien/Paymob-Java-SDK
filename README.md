@@ -10,6 +10,7 @@ A Java SDK for integrating with the Paymob Payment Gateway.
 
 ## Documentation
 - [Integration Flow & Diagrams](docs/flow_diagrams.md)
+- [Publishing Guide](docs/publishing.md)
 - [Paymob API Reference](https://docs.paymob.com)
 
 ## Requirements
