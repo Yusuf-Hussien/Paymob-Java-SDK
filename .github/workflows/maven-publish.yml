@@ -31,7 +31,9 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: config
+    environment: release
+    env:
+      RELEASE_VERSION: ${{ vars.RELEASE_VERSION }}
     
     steps:
     - uses: actions/checkout@v3
@@ -55,26 +57,37 @@ jobs:
         rm -f /tmp/gpg_key.asc
         gpg --list-secret-keys --keyid-format LONG
 
+    - name: Update Version in pom.xml
+      run: mvn versions:set -DnewVersion=${{ vars.RELEASE_VERSION }}
+
     - name: Publish to Maven Central
+      id: publish
+      continue-on-error: true
       run: mvn --batch-mode deploy -P release -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}"
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-    - name: Get Project Version
-      id: version
-      run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+    - name: Check if Publishing Succeeded
+      id: check-publish
+      run: |
+        if [ "${{ steps.publish.outcome }}" == "success" ]; then
+          echo "should_create_release=true" >> $GITHUB_OUTPUT
+        else
+          echo "should_create_release=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Create GitHub Release
+      if: steps.check-publish.outputs.should_create_release == 'true'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ steps.version.outputs.version }}
-        release_name: Paymob Java SDK v${{ steps.version.outputs.version }}
+        tag_name: v${{ vars.RELEASE_VERSION }}
+        release_name: Paymob Java SDK v${{ vars.RELEASE_VERSION }}
         body: |
-          ## Paymob Java SDK v${{ steps.version.outputs.version }}
+          ## Paymob Java SDK v${{ vars.RELEASE_VERSION }}
           
           This release has been published to Maven Central.
           
@@ -83,13 +96,13 @@ jobs:
           <dependency>
               <groupId>io.github.yusuf-hussien</groupId>
               <artifactId>paymob-java-sdk</artifactId>
-              <version>${{ steps.version.outputs.version }}</version>
+              <version>${{ vars.RELEASE_VERSION }}</version>
           </dependency>
           ```
           
           ### Gradle Dependency
           ```gradle
-          implementation 'io.github.yusuf-hussien:paymob-java-sdk:${{ steps.version.outputs.version }}'
+          implementation 'io.github.yusuf-hussien:paymob-java-sdk:${{ vars.RELEASE_VERSION }}'
           ```
           
           ### Changes
@@ -97,3 +110,10 @@ jobs:
           - Automated release from main branch
         draft: false
         prerelease: false
+
+    - name: Skip Release Notification
+      if: steps.check-publish.outputs.should_create_release == 'false'
+      run: |
+        echo "⚠️ Version ${{ vars.RELEASE_VERSION }} already exists in Maven Central"
+        echo "📝 Update RELEASE_VERSION variable in GitHub Settings to publish a new version"
+        echo "🔄 GitHub release skipped - no new version published"
