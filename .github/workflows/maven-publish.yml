@@ -82,6 +82,7 @@ jobs:
         fi
 
     - name: Create GitHub Release
+      id: create-release
       if: steps.check-publish.outputs.should_create_release == 'true'
       uses: actions/create-release@v1
       env:
@@ -113,6 +114,17 @@ jobs:
           - Automated release from main branch
         draft: false
         prerelease: false
+
+    - name: Upload JAR to GitHub Release
+      if: steps.check-publish.outputs.should_create_release == 'true'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: target/paymob-java-sdk-${{ vars.RELEASE_VERSION }}.jar
+        asset_name: paymob-java-sdk-${{ vars.RELEASE_VERSION }}.jar
+        asset_content_type: application/java-archive
 
     - name: Skip Release Notification
       if: steps.check-publish.outputs.should_create_release == 'false'
