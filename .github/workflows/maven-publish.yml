@@ -61,3 +61,39 @@ jobs:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+    - name: Get Project Version
+      id: version
+      run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+        release_name: Paymob Java SDK v${{ steps.version.outputs.version }}
+        body: |
+          ## Paymob Java SDK v${{ steps.version.outputs.version }}
+          
+          This release has been published to Maven Central.
+          
+          ### Maven Dependency
+          ```xml
+          <dependency>
+              <groupId>io.github.yusuf-hussien</groupId>
+              <artifactId>paymob-java-sdk</artifactId>
+              <version>${{ steps.version.outputs.version }}</version>
+          </dependency>
+          ```
+          
+          ### Gradle Dependency
+          ```gradle
+          implementation 'io.github.yusuf-hussien:paymob-java-sdk:${{ steps.version.outputs.version }}'
+          ```
+          
+          ### Changes
+          - Published to Maven Central
+          - Automated release from main branch
+        draft: false
+        prerelease: false
