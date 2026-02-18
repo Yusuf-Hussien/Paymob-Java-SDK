@@ -6,7 +6,8 @@ A Java SDK for integrating with the Paymob Payment Gateway.
 - **Authentication**: Easy API Key authentication.
 - **Orders**: Create and manage orders.
 - **Payments**: Generate payment keys for various payment methods.
-- **No External Dependencies**: Uses Java 11 `HttpClient`.
+- **No External Dependencies**: Uses Java 17 `HttpClient`.
+- **Automated Releases**: Published to Maven Central with GitHub releases.
 
 ## Documentation
 - [Integration Flow & Diagrams](docs/flow_diagrams.md)
@@ -14,7 +15,7 @@ A Java SDK for integrating with the Paymob Payment Gateway.
 - [Paymob API Reference](https://docs.paymob.com)
 
 ## Requirements
-- Java 11 or later
+- Java 17 or later
 - Maven 3.6+
 - A Paymob Merchant Account
 
@@ -49,11 +50,20 @@ Required if you are using the Paymob iFrame for card entry.
 Add the following to your `pom.xml`:
 ```xml
 <dependency>
-    <groupId>com.paymob</groupId>
+    <groupId>io.github.yusuf-hussien</groupId>
     <artifactId>paymob-java-sdk</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1</version>
+    <!-- or use the latest version from GitHub Releases -->
 </dependency>
 ```
+
+### Gradle
+```gradle
+implementation 'io.github.yusuf-hussien:paymob-java-sdk:0.1.1'
+```
+
+### JAR Download
+You can also download the JAR file directly from the [GitHub Releases](https://github.com/Yusuf-Hussien/Paymob-Java-SDK/releases) page.
 
 ## Usage
 
