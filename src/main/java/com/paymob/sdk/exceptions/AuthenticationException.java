@@ -16,4 +16,8 @@ public class AuthenticationException extends PaymobException {
     public AuthenticationException(String message, Throwable cause) {
         super(message, cause, 401, null);
     }
+
+    public AuthenticationException(String message, int httpStatus, String errorBody) {
+        super(message, httpStatus, errorBody);
+    }
 }

@@ -5,7 +5,7 @@ package com.paymob.sdk.core.auth;
  */
 public interface AuthStrategy {
     /**
-     * Applies authentication to the HTTP request.
+     * Applies authentication to HTTP request.
      * @param requestBuilder The request builder to apply auth to
      */
     void apply(Object requestBuilder);
@@ -15,4 +15,10 @@ public interface AuthStrategy {
      * @return The auth strategy type
      */
     String getType();
+
+    /**
+     * Returns the authorization header value.
+     * @return The authorization header value
+     */
+    String getAuthorizationHeader();
 }

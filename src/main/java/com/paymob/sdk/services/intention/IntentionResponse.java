@@ -1,10 +1,13 @@
 package com.paymob.sdk.services.intention;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Response object for payment intention operations.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IntentionResponse {
     private String clientSecret;
     private String redirectionUrl;

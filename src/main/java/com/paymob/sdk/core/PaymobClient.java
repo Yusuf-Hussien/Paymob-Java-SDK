@@ -4,6 +4,7 @@ import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.core.auth.SecretKeyAuthStrategy;
 import com.paymob.sdk.core.auth.BearerTokenAuthStrategy;
 import com.paymob.sdk.http.HttpClient;
+import com.paymob.sdk.http.OkHttpClientAdapter;
 import com.paymob.sdk.services.intention.IntentionService;
 import com.paymob.sdk.services.transaction.TransactionService;
 import com.paymob.sdk.services.inquiry.TransactionInquiryService;
@@ -32,7 +33,7 @@ public class PaymobClient {
         this.config = builder.config;
         this.httpClient = builder.httpClient;
         this.secretKeyAuth = new SecretKeyAuthStrategy(config.getSecretKey());
-        this.bearerTokenAuth = new BearerTokenAuthStrategy(config.getApiKey());
+        this.bearerTokenAuth = new BearerTokenAuthStrategy(config.getApiKey(), config.getRegion().getBaseUrl(), httpClient);
 
         // Initialize services
         this.intentionService = new IntentionService(httpClient, secretKeyAuth, config);

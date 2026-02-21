@@ -1,0 +1,225 @@
+package com.paymob.sdk.integration;
+
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.github.tomakehurst.wiremock.junit5.WireMockTestExtension;
+import com.paymob.sdk.core.PaymobClient;
+import com.paymob.sdk.core.PaymobConfig;
+import com.paymob.sdk.core.PaymobRegion;
+import com.paymob.sdk.services.intention.IntentionRequest;
+import com.paymob.sdk.services.intention.IntentionResponse;
+import com.paymob.sdk.models.common.BillingData;
+import com.paymob.sdk.models.common.Item;
+import com.paymob.sdk.models.enums.Currency;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Arrays;
+import java.util.List;
+
+@ExtendWith(WireMockTestExtension.class)
+@WireMockTest(httpPort = 8080)
+class RefactoredPaymobIntegrationTest {
+
+    private PaymobClient client;
+    private PaymobConfig config;
+
+    @BeforeEach
+    void setUp() {
+        config = PaymobConfig.builder()
+                .secretKey("sk_test_123456789")
+                .apiKey("ak_test_123456789")
+                .publicKey("pk_test_123456789")
+                .region(PaymobRegion.EGYPT)
+                .build();
+
+        client = PaymobClient.builder()
+                .config(config)
+                .build();
+    }
+
+    @Test
+    void testCreateIntention() {
+        // Mock the API response
+        stubFor(post(urlEqualTo("/v1/intention/"))
+                .withHeader("Authorization", equalTo("Token sk_test_123456789"))
+                .willReturn(aResponse()
+                        .withStatus(201)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+                                {
+                                    "client_secret": "cs_test_123456789",
+                                    "redirection_url": "https://webhook.site/test",
+                                    "special_reference": "order-123",
+                                    "amount": 10000,
+                                    "currency": "EGP",
+                                    "payment_keys": [
+                                        {
+                                            "integration": 123456,
+                                            "key": "payment_key_123",
+                                            "gateway_type": "MIGS",
+                                            "iframe_id": null,
+                                            "order_id": 987654321,
+                                            "redirection_url": "https://accept.paymob.com/api/acceptance/iframes/123456",
+                                            "save_card": true
+                                        }
+                                    ]
+                                }
+                                """)));
+
+        // Create request
+        BillingData billingData = new BillingData("John", "Doe", "john@example.com", "+201234567890");
+        Item item = new Item("Test Product", 10000, "Test Description", 1);
+        
+        IntentionRequest request = new IntentionRequest(10000, Currency.EGP, Arrays.asList(item), billingData);
+        request.setPaymentMethods(Arrays.asList(123456));
+        request.setSpecialReference("order-123");
+
+        // Execute request
+        IntentionResponse response = client.intentions().createIntention(request);
+
+        // Verify response
+        assertNotNull(response);
+        assertEquals("cs_test_123456789", response.getClientSecret());
+        assertEquals("order-123", response.getSpecialReference());
+        assertEquals(10000, response.getAmount());
+        assertEquals("EGP", response.getCurrency());
+        assertNotNull(response.getPaymentKeys());
+        assertEquals(1, response.getPaymentKeys().size());
+        
+        IntentionResponse.PaymentKey paymentKey = response.getPaymentKeys().get(0);
+        assertEquals(123456, paymentKey.getIntegration());
+        assertEquals("payment_key_123", paymentKey.getKey());
+        assertEquals("MIGS", paymentKey.getGatewayType());
+        assertEquals(987654321, paymentKey.getOrderId());
+        assertTrue(paymentKey.isSaveCard());
+
+        // Verify the request was made correctly
+        verify(postRequestedFor(urlEqualTo("/v1/intention/"))
+                .withHeader("Authorization", equalTo("Token sk_test_123456789"))
+                .withRequestBody(containing("order-123")));
+    }
+
+    @Test
+    void testRetrieveIntention() {
+        // Mock the API response
+        stubFor(get(urlMatching("/v1/intention/element/pk_test_123456789/cs_test_123456789/"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+                                {
+                                    "client_secret": "cs_test_123456789",
+                                    "amount": 10000,
+                                    "currency": "EGP",
+                                    "special_reference": "order-123"
+                                }
+                                """)));
+
+        // Execute request
+        IntentionResponse response = client.intentions().retrieveIntention("cs_test_123456789");
+
+        // Verify response
+        assertNotNull(response);
+        assertEquals("cs_test_123456789", response.getClientSecret());
+        assertEquals(10000, response.getAmount());
+        assertEquals("EGP", response.getCurrency());
+        assertEquals("order-123", response.getSpecialReference());
+
+        // Verify the request was made correctly
+        verify(getRequestedFor(urlMatching("/v1/intention/element/pk_test_123456789/cs_test_123456789/")));
+    }
+
+    @Test
+    void testUpdateIntention() {
+        // Mock the API response
+        stubFor(put(urlEqualTo("/v1/intention/cs_test_123456789"))
+                .withHeader("Authorization", equalTo("Token sk_test_123456789"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+                                {
+                                    "client_secret": "cs_test_123456789",
+                                    "amount": 15000,
+                                    "currency": "EGP",
+                                    "special_reference": "order-123-updated"
+                                }
+                                """)));
+
+        // Create request
+        BillingData billingData = new BillingData("John", "Doe", "john@example.com", "+201234567890");
+        Item item = new Item("Updated Product", 15000, "Updated Description", 1);
+        
+        IntentionRequest request = new IntentionRequest(15000, Currency.EGP, Arrays.asList(item), billingData);
+        request.setSpecialReference("order-123-updated");
+
+        // Execute request
+        IntentionResponse response = client.intentions().updateIntention("cs_test_123456789", request);
+
+        // Verify response
+        assertNotNull(response);
+        assertEquals("cs_test_123456789", response.getClientSecret());
+        assertEquals(15000, response.getAmount());
+        assertEquals("EGP", response.getCurrency());
+        assertEquals("order-123-updated", response.getSpecialReference());
+
+        // Verify the request was made correctly
+        verify(putRequestedFor(urlEqualTo("/v1/intention/cs_test_123456789"))
+                .withHeader("Authorization", equalTo("Token sk_test_123456789"))
+                .withRequestBody(containing("order-123-updated")));
+    }
+
+    @Test
+    void testGetUnifiedCheckoutUrl() {
+        String clientSecret = "cs_test_123456789";
+        String expectedUrl = "https://accept.paymob.com/?publicKey=pk_test_123456789&clientSecret=" + clientSecret;
+        
+        String checkoutUrl = client.intentions().getUnifiedCheckoutUrl(clientSecret);
+        
+        assertEquals(expectedUrl, checkoutUrl);
+    }
+
+    @Test
+    void testAuthenticationError() {
+        // Mock 401 response
+        stubFor(post(urlEqualTo("/v1/intention/"))
+                .willReturn(aResponse()
+                        .withStatus(401)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"error\": \"Unauthorized\"}")));
+
+        // Create request
+        BillingData billingData = new BillingData("John", "Doe", "john@example.com", "+201234567890");
+        Item item = new Item("Test Product", 10000, "Test Description", 1);
+        IntentionRequest request = new IntentionRequest(10000, Currency.EGP, Arrays.asList(item), billingData);
+
+        // Execute request and verify exception
+        assertThrows(com.paymob.sdk.exceptions.AuthenticationException.class, () -> {
+            client.intentions().createIntention(request);
+        });
+    }
+
+    @Test
+    void testValidationError() {
+        // Mock 406 response
+        stubFor(post(urlEqualTo("/v1/intention/"))
+                .willReturn(aResponse()
+                        .withStatus(406)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"error\": \"Amount validation failed\"}")));
+
+        // Create request
+        BillingData billingData = new BillingData("John", "Doe", "john@example.com", "+201234567890");
+        Item item = new Item("Test Product", 10000, "Test Description", 1);
+        IntentionRequest request = new IntentionRequest(10000, Currency.EGP, Arrays.asList(item), billingData);
+
+        // Execute request and verify exception
+        assertThrows(com.paymob.sdk.exceptions.ValidationException.class, () -> {
+            client.intentions().createIntention(request);
+        });
+    }
+}

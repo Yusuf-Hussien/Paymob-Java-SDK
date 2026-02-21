@@ -16,4 +16,8 @@ public class ResourceNotFoundException extends PaymobException {
     public ResourceNotFoundException(String message, Throwable cause) {
         super(message, cause, 404, null);
     }
+
+    public ResourceNotFoundException(String message, int httpStatus, String errorBody) {
+        super(message, httpStatus, errorBody);
+    }
 }

@@ -16,4 +16,8 @@ public class ValidationException extends PaymobException {
     public ValidationException(String message, Throwable cause) {
         super(message, cause, 406, null);
     }
+
+    public ValidationException(String message, int httpStatus, String errorBody) {
+        super(message, httpStatus, errorBody);
+    }
 }

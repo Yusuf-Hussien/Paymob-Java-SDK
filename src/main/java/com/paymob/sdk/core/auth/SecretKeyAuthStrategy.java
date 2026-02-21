@@ -9,6 +9,9 @@ public class SecretKeyAuthStrategy implements AuthStrategy {
     private final String secretKey;
 
     public SecretKeyAuthStrategy(String secretKey) {
+        if (secretKey == null) {
+            throw new NullPointerException("Secret key cannot be null");
+        }
         this.secretKey = secretKey;
     }
 

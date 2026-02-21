@@ -4,6 +4,8 @@ import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.core.auth.SecretKeyAuthStrategy;
 import com.paymob.sdk.core.auth.BearerTokenAuthStrategy;
 import com.paymob.sdk.exceptions.*;
+import com.paymob.sdk.http.interceptors.AuthInterceptor;
+import com.paymob.sdk.http.interceptors.RetryInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import okhttp3.*;
@@ -117,7 +119,7 @@ public class OkHttpClientAdapter implements HttpClient {
 
     @Override
     public void setTimeout(int timeoutSeconds) {
-        this.client = client.newBuilder()
+        client = client.newBuilder()
                 .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
                 .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
                 .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
