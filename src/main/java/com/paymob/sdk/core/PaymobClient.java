@@ -40,7 +40,7 @@ public class PaymobClient {
         // Initialize services
         this.intentionService = new IntentionService(httpClient, secretKeyAuth, config);
         this.transactionService = new TransactionService(httpClient, secretKeyAuth, config);
-        this.inquiryService = new TransactionInquiryService(httpClient, secretKeyAuth, config);
+        this.inquiryService = new TransactionInquiryService(httpClient, bearerTokenAuth, config);
         this.savedCardService = new SavedCardService(httpClient, secretKeyAuth, config);
         this.subscriptionPlanService = new SubscriptionPlanService(httpClient, bearerTokenAuth, config);
         this.subscriptionService = new SubscriptionService(httpClient, secretKeyAuth, bearerTokenAuth, config);

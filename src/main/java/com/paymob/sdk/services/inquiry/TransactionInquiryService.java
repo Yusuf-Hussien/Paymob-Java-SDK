@@ -28,7 +28,7 @@ public class TransactionInquiryService {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
         InquiryRequest request = new InquiryRequest();
         request.setMerchantOrderId(merchantOrderId);
-        return httpClient.post("/acceptance/transactions/query", request, InquiryResponse.class, authStrategy);
+        return httpClient.post("/api/ecommerce/orders/transaction_inquiry", request, InquiryResponse.class, authStrategy);
     }
 
     /**
@@ -40,7 +40,7 @@ public class TransactionInquiryService {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
         InquiryRequest request = new InquiryRequest();
         request.setOrderId(orderId);
-        return httpClient.post("/acceptance/transactions/query", request, InquiryResponse.class, authStrategy);
+        return httpClient.post("/api/ecommerce/orders/transaction_inquiry", request, InquiryResponse.class, authStrategy);
     }
 
     /**
@@ -50,6 +50,6 @@ public class TransactionInquiryService {
      */
     public InquiryResponse byTransactionId(long transactionId) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        return httpClient.get("/acceptance/transactions/" + transactionId, InquiryResponse.class, authStrategy);
+        return httpClient.get("/api/acceptance/transactions/" + transactionId, InquiryResponse.class, authStrategy);
     }
 }
