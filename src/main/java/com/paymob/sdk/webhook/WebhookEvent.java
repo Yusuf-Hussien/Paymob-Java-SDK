@@ -14,6 +14,7 @@ public class WebhookEvent {
     private Object data;
     private Boolean success;
     private JsonNode obj;
+    private JsonNode root;
 
     public WebhookEvent(String rawPayload) {
         this.rawPayload = rawPayload;
@@ -21,6 +22,14 @@ public class WebhookEvent {
 
     public String getRawPayload() {
         return rawPayload;
+    }
+
+    public JsonNode getRoot() {
+        return root;
+    }
+
+    public void setRoot(JsonNode root) {
+        this.root = root;
     }
 
     public WebhookEventType getType() {

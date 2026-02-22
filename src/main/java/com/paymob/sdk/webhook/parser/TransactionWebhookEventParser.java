@@ -20,7 +20,14 @@ public class TransactionWebhookEventParser implements WebhookEventParser {
             return false;
         try {
             JsonNode root = objectMapper.readTree(payload);
-            return root.has("obj") && !root.has("subscription_data");
+            if (!root.has("obj") || root.has("subscription_data")) {
+                return false;
+            }
+            if (root.has("type")) {
+                String type = root.get("type").asText();
+                return "TRANSACTION".equals(type);
+            }
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -36,6 +43,7 @@ public class TransactionWebhookEventParser implements WebhookEventParser {
             if (obj == null)
                 return event;
 
+            event.setRoot(root);
             event.setObj(obj);
             event.setData(obj);
 

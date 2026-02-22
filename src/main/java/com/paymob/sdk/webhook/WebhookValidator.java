@@ -1,7 +1,9 @@
 package com.paymob.sdk.webhook;
 
+import com.paymob.sdk.webhook.parser.CardTokenWebhookEventParser;
 import com.paymob.sdk.webhook.parser.SubscriptionWebhookEventParser;
 import com.paymob.sdk.webhook.parser.TransactionWebhookEventParser;
+import com.paymob.sdk.webhook.signature.CardTokenSignatureCalculator;
 import com.paymob.sdk.webhook.signature.SubscriptionSignatureCalculator;
 import com.paymob.sdk.webhook.signature.TransactionSignatureCalculator;
 
@@ -17,8 +19,8 @@ import java.util.Map;
 /**
  * Validates Paymob webhook signatures using HMAC-SHA512.
  * <p>
- * Supports multiple webhook types (transaction, subscription, etc.) by
- * delegating
+ * Supports multiple webhook types (transaction, subscription, card token, etc.)
+ * by delegating
  * to registered {@link WebhookSignatureCalculator}s and
  * {@link WebhookEventParser}s.
  * <p>
@@ -44,10 +46,12 @@ public class WebhookValidator {
         this.calculators = new ArrayList<>();
         this.calculators.add(new TransactionSignatureCalculator());
         this.calculators.add(new SubscriptionSignatureCalculator());
+        this.calculators.add(new CardTokenSignatureCalculator());
 
         this.parsers = new ArrayList<>();
         this.parsers.add(new TransactionWebhookEventParser());
         this.parsers.add(new SubscriptionWebhookEventParser());
+        this.parsers.add(new CardTokenWebhookEventParser());
     }
 
     /**

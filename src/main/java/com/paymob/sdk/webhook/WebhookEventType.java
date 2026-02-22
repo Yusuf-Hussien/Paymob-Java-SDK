@@ -26,7 +26,10 @@ public enum WebhookEventType {
     SUBSCRIPTION_REGISTER_WEBHOOK("register_webhook"),
     SUBSCRIPTION_SUCCESSFUL_TRANSACTION("Successful Transaction"),
     SUBSCRIPTION_FAILED_TRANSACTION("Failed Transaction"),
-    SUBSCRIPTION_FAILED_OVERDUE_TRANSACTION("Failed Overdue Transaction");
+    SUBSCRIPTION_FAILED_OVERDUE_TRANSACTION("Failed Overdue Transaction"),
+
+    // ── Card Token types ──
+    CARD_TOKEN("TOKEN");
 
     private final String value;
 

@@ -19,7 +19,16 @@ public class TransactionSignatureCalculator extends WebhookSignatureCalculator {
             return false;
         try {
             JsonNode root = objectMapper.readTree(payload);
-            return root.has("obj") && !root.has("subscription_data");
+            // Has 'obj' but NOT 'subscription_data'
+            if (!root.has("obj") || root.has("subscription_data")) {
+                return false;
+            }
+            // If 'type' exists, it must be 'TRANSACTION'
+            if (root.has("type")) {
+                String type = root.get("type").asText();
+                return "TRANSACTION".equals(type);
+            }
+            return true; // Backward compatibility for payloads without 'type'
         } catch (Exception e) {
             return false;
         }

@@ -7,10 +7,9 @@ import com.paymob.sdk.webhook.WebhookEventParser;
 import com.paymob.sdk.webhook.WebhookEventType;
 
 /**
- * Parses subscription webhook payloads into {@link WebhookEvent}.
- * Maps {@code trigger_type} to the corresponding {@link WebhookEventType}.
+ * Parses Card Token webhook payloads into {@link WebhookEvent}.
  */
-public class SubscriptionWebhookEventParser implements WebhookEventParser {
+public class CardTokenWebhookEventParser implements WebhookEventParser {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -19,7 +18,7 @@ public class SubscriptionWebhookEventParser implements WebhookEventParser {
             return false;
         try {
             JsonNode root = objectMapper.readTree(payload);
-            return root.has("subscription_data") && root.has("trigger_type");
+            return root.has("type") && "TOKEN".equals(root.get("type").asText());
         } catch (Exception e) {
             return false;
         }
@@ -31,20 +30,20 @@ public class SubscriptionWebhookEventParser implements WebhookEventParser {
 
         try {
             JsonNode root = objectMapper.readTree(payload);
-            JsonNode subscriptionData = root.get("subscription_data");
-            JsonNode triggerType = root.get("trigger_type");
+            JsonNode obj = root.get("obj");
+            if (obj == null)
+                return event;
 
             event.setRoot(root);
-            if (subscriptionData != null) {
-                event.setObj(subscriptionData);
-                event.setData(subscriptionData);
+            event.setObj(obj);
+            event.setType(WebhookEventType.CARD_TOKEN);
+
+            if (obj.has("token")) {
+                event.setData(obj.get("token").asText());
+            } else {
+                event.setData(obj); // Fallback to full object if token is missing
             }
 
-            if (triggerType != null && !triggerType.isNull()) {
-                String trigger = triggerType.asText("");
-                WebhookEventType type = WebhookEventType.fromTriggerType(trigger);
-                event.setType(type);
-            }
         } catch (Exception ignored) {
         }
 
