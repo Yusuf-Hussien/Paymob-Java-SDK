@@ -1,14 +1,11 @@
 package com.paymob.sdk.webhook;
 
-import com.paymob.sdk.core.PaymobConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +44,7 @@ public class WebhookValidator {
 
         try {
             String expectedHmac = calculateTransactionHmac(payload);
-            return MessageDigest.isEqual(
-                expectedHmac.getBytes(StandardCharsets.UTF_8), 
-                receivedHmac.getBytes(StandardCharsets.UTF_8)
-            );
+            return timingSafeHexEquals(expectedHmac, receivedHmac);
         } catch (Exception e) {
             return false;
         }
@@ -208,10 +202,7 @@ public class WebhookValidator {
 
         try {
             String expectedHmac = calculateCallbackHmac(queryParams);
-            return MessageDigest.isEqual(
-                expectedHmac.getBytes(StandardCharsets.UTF_8), 
-                receivedHmac.getBytes(StandardCharsets.UTF_8)
-            );
+            return timingSafeHexEquals(expectedHmac, receivedHmac);
         } catch (Exception e) {
             return false;
         }
@@ -226,13 +217,22 @@ public class WebhookValidator {
         String[] fields = {
             "amount_cents", "created_at", "currency", "error_occured", "has_parent_transaction",
             "id", "integration_id", "is_3d_secure", "is_auth", "is_capture", "is_refunded",
-            "is_standalone_payment", "is_voided", "order", "owner", "pending",
+            "is_standalone_payment", "is_voided", "order_id", "owner", "pending",
             "source_data.pan", "source_data.sub_type", "source_data.type", "success"
         };
 
         StringBuilder concatenated = new StringBuilder();
         for (String field : fields) {
-            String value = queryParams.getOrDefault(field, "");
+            String value = queryParams.get(field);
+            if (value == null && "order_id".equals(field)) {
+                value = queryParams.get("order.id");
+                if (value == null) {
+                    value = queryParams.get("order");
+                }
+            }
+            if (value == null) {
+                value = "";
+            }
             concatenated.append(value);
         }
 
@@ -243,5 +243,19 @@ public class WebhookValidator {
         byte[] macData = sha512Hmac.doFinal(concatenated.toString().getBytes(StandardCharsets.UTF_8));
         
         return HexFormat.of().formatHex(macData).toLowerCase();
+    }
+
+    private boolean timingSafeHexEquals(String expectedHex, String receivedHex) {
+        if (expectedHex == null || receivedHex == null) {
+            return false;
+        }
+
+        try {
+            byte[] expectedBytes = HexFormat.of().parseHex(expectedHex);
+            byte[] receivedBytes = HexFormat.of().parseHex(receivedHex.toLowerCase());
+            return MessageDigest.isEqual(expectedBytes, receivedBytes);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
