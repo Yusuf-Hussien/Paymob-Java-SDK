@@ -6,6 +6,7 @@ import com.paymob.sdk.core.auth.BearerTokenAuthStrategy;
 import com.paymob.sdk.exceptions.*;
 import com.paymob.sdk.http.interceptors.AuthInterceptor;
 import com.paymob.sdk.http.interceptors.RetryInterceptor;
+import com.paymob.sdk.http.interceptors.LoggingInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import okhttp3.*;
@@ -31,6 +32,7 @@ public class OkHttpClientAdapter implements HttpClient {
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(new AuthInterceptor())
                 .addInterceptor(new RetryInterceptor())
+                .addInterceptor(new LoggingInterceptor())
                 .build();
     }
 
@@ -55,8 +57,13 @@ public class OkHttpClientAdapter implements HttpClient {
     @Override
     public <T> T post(String endpoint, Object requestBody, Class<T> responseClass, AuthStrategy authStrategy) {
         try {
-            String jsonBody = objectMapper.writeValueAsString(requestBody);
-            RequestBody body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
+            RequestBody body;
+            if (requestBody instanceof RequestBody) {
+                body = (RequestBody) requestBody;
+            } else {
+                String jsonBody = objectMapper.writeValueAsString(requestBody);
+                body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
+            }
 
             Request.Builder requestBuilder = new Request.Builder()
                     .url(baseUrl + endpoint)
@@ -76,8 +83,13 @@ public class OkHttpClientAdapter implements HttpClient {
     @Override
     public <T> T put(String endpoint, Object requestBody, Class<T> responseClass, AuthStrategy authStrategy) {
         try {
-            String jsonBody = objectMapper.writeValueAsString(requestBody);
-            RequestBody body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
+            RequestBody body;
+            if (requestBody instanceof RequestBody) {
+                body = (RequestBody) requestBody;
+            } else {
+                String jsonBody = objectMapper.writeValueAsString(requestBody);
+                body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
+            }
 
             Request.Builder requestBuilder = new Request.Builder()
                     .url(baseUrl + endpoint)
@@ -132,7 +144,10 @@ public class OkHttpClientAdapter implements HttpClient {
             requestBuilder.header("Authorization", secretAuth.getAuthorizationHeader());
         } else if (authStrategy instanceof BearerTokenAuthStrategy) {
             BearerTokenAuthStrategy bearerAuth = (BearerTokenAuthStrategy) authStrategy;
-            requestBuilder.header("Authorization", bearerAuth.getAuthorizationHeader());
+            String authorizationHeader = bearerAuth.getAuthorizationHeader();
+            if (authorizationHeader != null) {
+                requestBuilder.header("Authorization", authorizationHeader);
+            }
         }
     }
 

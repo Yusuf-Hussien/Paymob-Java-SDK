@@ -3,20 +3,21 @@ package com.paymob.sdk.core.auth;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import com.paymob.sdk.http.HttpClient;
-import com.paymob.sdk.http.OkHttpClientAdapter;
 
 class BearerTokenAuthStrategyTest {
     private BearerTokenAuthStrategy authStrategy;
     private static final String API_KEY = "ak_test_123456789";
     private static final String TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
     private static final String BASE_URL = "https://accept.paymob.com";
+    private HttpClient httpClient;
 
     @BeforeEach
     void setUp() {
-        HttpClient httpClient = new OkHttpClientAdapter();
+        httpClient = mock(HttpClient.class);
         authStrategy = new BearerTokenAuthStrategy(API_KEY, BASE_URL, httpClient);
     }
 
@@ -82,7 +83,13 @@ class BearerTokenAuthStrategyTest {
     @Test
     void testNoTokenSet() {
         assertTrue(authStrategy.isTokenExpired());
-        assertNull(authStrategy.getAuthorizationHeader());
+
+        BearerTokenAuthStrategy.TokenResponse tokenResponse = new BearerTokenAuthStrategy.TokenResponse();
+        tokenResponse.token = TOKEN;
+        when(httpClient.post(eq("/api/auth/tokens"), any(), eq(BearerTokenAuthStrategy.TokenResponse.class), isNull()))
+                .thenReturn(tokenResponse);
+
+        assertEquals("Bearer " + TOKEN, authStrategy.getAuthorizationHeader());
     }
 
     @Test
@@ -107,14 +114,14 @@ class BearerTokenAuthStrategyTest {
     @Test
     void testNullApiKey() {
         assertThrows(NullPointerException.class, () -> {
-            new BearerTokenAuthStrategy(null, BASE_URL, new OkHttpClientAdapter());
+            new BearerTokenAuthStrategy(null, BASE_URL, httpClient);
         });
     }
 
     @Test
     void testEmptyApiKey() {
         String emptyKey = "";
-        BearerTokenAuthStrategy auth = new BearerTokenAuthStrategy(emptyKey, BASE_URL, new OkHttpClientAdapter());
+        BearerTokenAuthStrategy auth = new BearerTokenAuthStrategy(emptyKey, BASE_URL, httpClient);
         
         assertEquals(emptyKey, auth.getApiKey());
         assertEquals("BEARER_TOKEN", auth.getType());

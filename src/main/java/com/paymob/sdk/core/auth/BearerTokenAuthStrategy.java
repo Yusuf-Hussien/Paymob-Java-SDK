@@ -5,9 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paymob.sdk.http.HttpClient;
-import okhttp3.*;
 
 /**
  * Authentication strategy using Bearer Token.
@@ -21,7 +19,6 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
     private final String baseUrl;
     private final HttpClient httpClient;
     private final Cache<String, String> tokenCache;
-    private final ObjectMapper objectMapper;
     private volatile String bearerToken;
     private volatile Instant tokenExpiry;
     private final Object lock = new Object();
@@ -33,7 +30,6 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
         this.httpClient = httpClient;
-        this.objectMapper = new ObjectMapper();
         this.tokenCache = Caffeine.newBuilder()
                 .expireAfterWrite(55, TimeUnit.MINUTES)
                 .maximumSize(100)
@@ -85,6 +81,29 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
         }
     }
 
+    private TokenResponse login(TokenRequest request) {
+        httpClient.setBaseUrl(baseUrl);
+        return httpClient.post("/api/auth/tokens", request, TokenResponse.class, null);
+    }
+
+    private String fetchTokenSync() {
+        TokenResponse tokenResponse = login(new TokenRequest(apiKey));
+        if (tokenResponse == null || tokenResponse.token == null || tokenResponse.token.isBlank()) {
+            throw new RuntimeException("Token endpoint returned empty token");
+        }
+
+        String token = tokenResponse.token;
+        Instant expiry = Instant.now().plusSeconds(3600);
+
+        synchronized (lock) {
+            this.bearerToken = token;
+            this.tokenExpiry = expiry;
+            tokenCache.put(apiKey, token);
+        }
+
+        return token;
+    }
+
     /**
      * Fetches a new bearer token from Paymob API.
      * @return CompletableFuture that completes with the token
@@ -92,19 +111,7 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
     public CompletableFuture<String> fetchToken() {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                String jsonBody = "{\"api_key\": \"" + apiKey + "\"}";
-                
-                // Simple mock implementation for now
-                String token = "mock_token_" + System.currentTimeMillis();
-                Instant expiry = Instant.now().plusSeconds(3600); // 1 hour
-                tokenCache.put(apiKey, token);
-                
-                synchronized (lock) {
-                    this.bearerToken = token;
-                    this.tokenExpiry = expiry;
-                }
-                
-                return token;
+                return fetchTokenSync();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to fetch bearer token", e);
             }
@@ -116,9 +123,10 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
      * @return The bearer token
      */
     public String getOrFetchToken() {
+        // Check cache first
+        String cachedToken;
         synchronized (lock) {
-            // Check cache first
-            String cachedToken = tokenCache.getIfPresent(apiKey);
+            cachedToken = tokenCache.getIfPresent(apiKey);
             if (cachedToken != null) {
                 bearerToken = cachedToken;
                 tokenExpiry = Instant.now().plusSeconds(3600);
@@ -129,28 +137,47 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
             if (bearerToken != null && !isTokenExpired()) {
                 return bearerToken;
             }
-
-            // Fetch new token asynchronously and wait for result
-            try {
-                return fetchToken().get(30, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to fetch bearer token", e);
-            }
         }
+
+        // Fetch a new token without holding the lock (avoids deadlocks)
+        return fetchTokenSync();
     }
 
     @Override
     public String getAuthorizationHeader() {
-        if (bearerToken == null) {
+        String token;
+        boolean needsRefresh;
+
+        synchronized (lock) {
+            token = bearerToken;
+            needsRefresh = (token == null) || isTokenExpired();
+        }
+
+        if (needsRefresh) {
+            token = getOrFetchToken();
+        }
+
+        if (token == null || token.isBlank()) {
             return null;
         }
-        return "Bearer " + bearerToken;
+        return "Bearer " + token;
+    }
+
+    /**
+     * Request DTO for token endpoint.
+     */
+    static class TokenRequest {
+        public String api_key;
+
+        public TokenRequest(String apiKey) {
+            this.api_key = apiKey;
+        }
     }
 
     /**
      * Response DTO for token endpoint.
      */
-    private static class TokenResponse {
+    static class TokenResponse {
         public String token;
     }
 }

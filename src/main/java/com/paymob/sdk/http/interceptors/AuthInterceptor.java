@@ -35,7 +35,10 @@ public class AuthInterceptor implements Interceptor {
                 requestBuilder.header("Authorization", secretAuth.getAuthorizationHeader());
             } else if (authStrategy instanceof BearerTokenAuthStrategy) {
                 BearerTokenAuthStrategy bearerAuth = (BearerTokenAuthStrategy) authStrategy;
-                requestBuilder.header("Authorization", bearerAuth.getAuthorizationHeader());
+                String authorizationHeader = bearerAuth.getAuthorizationHeader();
+                if (authorizationHeader != null) {
+                    requestBuilder.header("Authorization", authorizationHeader);
+                }
             }
         }
 

@@ -41,7 +41,7 @@ public class PaymobClient {
         this.inquiryService = new TransactionInquiryService(httpClient, secretKeyAuth, config);
         this.savedCardService = new SavedCardService(httpClient, secretKeyAuth, config);
         this.subscriptionService = new SubscriptionService(httpClient, bearerTokenAuth, config);
-        this.quickLinkService = new QuickLinkService(httpClient, secretKeyAuth, config);
+        this.quickLinkService = new QuickLinkService(httpClient, bearerTokenAuth, config);
     }
 
     public static Builder builder() {
