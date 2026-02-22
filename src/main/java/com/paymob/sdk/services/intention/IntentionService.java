@@ -57,6 +57,6 @@ public class IntentionService {
      * @return The URL to redirect the user to
      */
     public String getUnifiedCheckoutUrl(String clientSecret) {
-        return config.getRegion().getCheckoutUrl() + "/?publicKey=" + config.getPublicKey() + "&clientSecret=" + clientSecret;
+        return config.getRegion().getBaseUrl() + "/unifiedcheckout/?publicKey=" + config.getPublicKey() + "&clientSecret=" + clientSecret;
     }
 }
