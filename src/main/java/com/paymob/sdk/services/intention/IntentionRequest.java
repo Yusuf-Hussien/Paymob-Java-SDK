@@ -1,5 +1,7 @@
 package com.paymob.sdk.services.intention;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.paymob.sdk.models.common.BillingData;
 import com.paymob.sdk.models.common.Item;
 import com.paymob.sdk.models.enums.Currency;
@@ -13,6 +15,15 @@ public class IntentionRequest {
     private int amount; // in cents, must equal sum of items amounts
     private Currency currency;
     private List<Integer> paymentMethods; // Integration IDs
+
+    @JsonProperty("subscription_plan_id")
+    @JsonAlias({"subscriptionPlanId"})
+    private Long subscriptionPlanId;
+
+    @JsonProperty("subscriptionv2_id")
+    @JsonAlias({"subscriptionv2Id"})
+    private Long subscriptionv2Id;
+
     private List<Item> items;
     private BillingData billingData;
     private String specialReference;
@@ -50,6 +61,22 @@ public class IntentionRequest {
 
     public void setPaymentMethods(List<Integer> paymentMethods) {
         this.paymentMethods = paymentMethods;
+    }
+
+    public Long getSubscriptionPlanId() {
+        return subscriptionPlanId;
+    }
+
+    public void setSubscriptionPlanId(Long subscriptionPlanId) {
+        this.subscriptionPlanId = subscriptionPlanId;
+    }
+
+    public Long getSubscriptionv2Id() {
+        return subscriptionv2Id;
+    }
+
+    public void setSubscriptionv2Id(Long subscriptionv2Id) {
+        this.subscriptionv2Id = subscriptionv2Id;
     }
 
     public List<Item> getItems() {

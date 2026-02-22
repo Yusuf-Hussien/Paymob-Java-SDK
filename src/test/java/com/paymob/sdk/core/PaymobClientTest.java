@@ -59,6 +59,7 @@ class PaymobClientTest {
         assertNotNull(client.inquiry());
         assertNotNull(client.savedCards());
         assertNotNull(client.subscriptions());
+        assertNotNull(client.subscriptionPlans());
         assertNotNull(client.quickLinks());
     }
 

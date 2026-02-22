@@ -10,6 +10,7 @@ import com.paymob.sdk.services.transaction.TransactionService;
 import com.paymob.sdk.services.inquiry.TransactionInquiryService;
 import com.paymob.sdk.services.savedcard.SavedCardService;
 import com.paymob.sdk.services.subscription.SubscriptionService;
+import com.paymob.sdk.services.subscription.SubscriptionPlanService;
 import com.paymob.sdk.services.quicklink.QuickLinkService;
 
 /**
@@ -27,6 +28,7 @@ public class PaymobClient {
     private final TransactionInquiryService inquiryService;
     private final SavedCardService savedCardService;
     private final SubscriptionService subscriptionService;
+    private final SubscriptionPlanService subscriptionPlanService;
     private final QuickLinkService quickLinkService;
 
     private PaymobClient(Builder builder) {
@@ -40,7 +42,8 @@ public class PaymobClient {
         this.transactionService = new TransactionService(httpClient, secretKeyAuth, config);
         this.inquiryService = new TransactionInquiryService(httpClient, secretKeyAuth, config);
         this.savedCardService = new SavedCardService(httpClient, secretKeyAuth, config);
-        this.subscriptionService = new SubscriptionService(httpClient, bearerTokenAuth, config);
+        this.subscriptionPlanService = new SubscriptionPlanService(httpClient, bearerTokenAuth, config);
+        this.subscriptionService = new SubscriptionService(httpClient, secretKeyAuth, bearerTokenAuth, config);
         this.quickLinkService = new QuickLinkService(httpClient, bearerTokenAuth, config);
     }
 
@@ -67,6 +70,10 @@ public class PaymobClient {
 
     public SubscriptionService subscriptions() {
         return subscriptionService;
+    }
+
+    public SubscriptionPlanService subscriptionPlans() {
+        return subscriptionPlanService;
     }
 
     public QuickLinkService quickLinks() {
