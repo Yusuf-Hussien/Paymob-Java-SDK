@@ -1,14 +1,23 @@
 package com.paymob.sdk.services.savedcard;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.paymob.sdk.services.intention.IntentionResponse;
+
 /**
  * Response for tokenized payment operations.
+ * Extends IntentionResponse since CIT/MIT start with intention creation.
  */
-public class TokenizedPaymentResponse {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TokenizedPaymentResponse extends IntentionResponse {
+    @JsonProperty("success")
     private boolean success;
+
+    @JsonProperty("message")
     private String message;
+
+    @JsonProperty("transaction_id")
     private long transactionId;
-    private String orderId;
-    private String clientSecret;
 
     public boolean isSuccess() {
         return success;
@@ -34,19 +43,13 @@ public class TokenizedPaymentResponse {
         this.transactionId = transactionId;
     }
 
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
+    @Override
+    public String toString() {
+        return "TokenizedPaymentResponse{" +
+                "id='" + getId() + '\'' +
+                ", clientSecret='" + getClientSecret() + '\'' +
+                ", success=" + success +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

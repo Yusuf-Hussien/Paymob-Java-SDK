@@ -6,7 +6,8 @@ import com.paymob.sdk.http.HttpClient;
 
 /**
  * Service for saved card tokenization payments.
- * Supports both CIT (Customer Initiated) and MIT (Merchant Initiated) transactions.
+ * Supports both CIT (Customer Initiated) and MIT (Merchant Initiated)
+ * transactions.
  */
 public class SavedCardService {
     private final HttpClient httpClient;
@@ -22,8 +23,9 @@ public class SavedCardService {
     /**
      * Processes a Customer Initiated Transaction (CIT).
      * Customer is present at checkout, requires CVV re-entry.
+     * 
      * @param request The CIT payment request
-     * @return Payment response
+     * @return Payment response containing intention details (client_secret)
      */
     public TokenizedPaymentResponse processCitPayment(CitPaymentRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
@@ -33,8 +35,9 @@ public class SavedCardService {
     /**
      * Processes a Merchant Initiated Transaction (MIT).
      * Automated charges for subscriptions/top-ups, no customer present.
+     * 
      * @param request The MIT payment request
-     * @return Payment response
+     * @return Payment response containing intention details (client_secret)
      */
     public TokenizedPaymentResponse processMitPayment(MitPaymentRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());

@@ -48,6 +48,9 @@ public class IntentionRequest {
     @JsonProperty("redirection_url")
     private String redirectionUrl;
 
+    @JsonProperty("card_tokens")
+    private List<String> cardTokens;
+
     @JsonProperty("extras")
     private Map<String, Object> extras;
 
@@ -154,6 +157,14 @@ public class IntentionRequest {
         this.redirectionUrl = redirectionUrl;
     }
 
+    public List<String> getCardTokens() {
+        return cardTokens;
+    }
+
+    public void setCardTokens(List<String> cardTokens) {
+        this.cardTokens = cardTokens;
+    }
+
     public Map<String, Object> getExtras() {
         return extras;
     }
@@ -194,6 +205,7 @@ public class IntentionRequest {
         private String notificationUrl;
         private String redirectionUrl;
         private Map<String, Object> extras;
+        private List<String> cardTokens;
         private Long acceptOrderId;
 
         public Builder amount(int amount) {
@@ -251,6 +263,11 @@ public class IntentionRequest {
             return this;
         }
 
+        public Builder cardTokens(List<String> cardTokens) {
+            this.cardTokens = cardTokens;
+            return this;
+        }
+
         public Builder acceptOrderId(Long acceptOrderId) {
             this.acceptOrderId = acceptOrderId;
             return this;
@@ -265,6 +282,7 @@ public class IntentionRequest {
             request.setNotificationUrl(notificationUrl);
             request.setRedirectionUrl(redirectionUrl);
             request.setExtras(extras);
+            request.setCardTokens(cardTokens);
             request.setAcceptOrderId(acceptOrderId);
             return request;
         }
