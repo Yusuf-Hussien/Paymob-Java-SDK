@@ -25,4 +25,4 @@ Thumbs.db
 
 # Secrets
 .env
-
+.setup_test_env.ps1

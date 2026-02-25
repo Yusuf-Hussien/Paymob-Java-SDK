@@ -1,5 +1,6 @@
 package com.paymob.sdk.services.quicklink;
 
+import com.paymob.sdk.models.enums.Currency;
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
 import com.paymob.sdk.core.auth.AuthStrategy;
@@ -40,7 +41,7 @@ class QuickLinkServiceTest {
         when(httpClient.post(anyString(), any(), eq(QuickLinkResponse.class), eq(authStrategy)))
                 .thenReturn(new QuickLinkResponse());
 
-        QuickLinkRequest request = new QuickLinkRequest(10000, 12345, false);
+        QuickLinkRequest request = new QuickLinkRequest(10000, 12345, Currency.EGP, false);
         request.setFullName("John Doe");
         request.setCustomerEmail("john@example.com");
         request.setCustomerPhone("+201234567890");
@@ -54,7 +55,8 @@ class QuickLinkServiceTest {
         verify(httpClient).setBaseUrl("https://accept.paymob.com");
 
         ArgumentCaptor<Object> bodyCaptor = ArgumentCaptor.forClass(Object.class);
-        verify(httpClient).post(eq("/api/ecommerce/payment-links"), bodyCaptor.capture(), eq(QuickLinkResponse.class), eq(authStrategy));
+        verify(httpClient).post(eq("/api/ecommerce/payment-links"), bodyCaptor.capture(), eq(QuickLinkResponse.class),
+                eq(authStrategy));
 
         Object body = bodyCaptor.getValue();
         assertInstanceOf(RequestBody.class, body);
@@ -84,7 +86,8 @@ class QuickLinkServiceTest {
         verify(httpClient).setBaseUrl("https://accept.paymob.com");
 
         ArgumentCaptor<Object> bodyCaptor = ArgumentCaptor.forClass(Object.class);
-        verify(httpClient).post(eq("/api/ecommerce/payment-links/cancel"), bodyCaptor.capture(), eq(QuickLinkResponse.class), eq(authStrategy));
+        verify(httpClient).post(eq("/api/ecommerce/payment-links/cancel"), bodyCaptor.capture(),
+                eq(QuickLinkResponse.class), eq(authStrategy));
 
         Object body = bodyCaptor.getValue();
         assertInstanceOf(MultipartBody.class, body);

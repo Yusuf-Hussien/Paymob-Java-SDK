@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Paymob Java SDK</name>
-    <description>Java SDK for Paymob Payment Gateway</description>
+    <description>Java SDK for Paymob Payment Gateway (Unofficial)</description>
     <url>https://github.com/Yusuf-Hussien/Paymob-Java-SDK</url>
 
     <licenses>
@@ -22,10 +22,8 @@
 
     <developers>
         <developer>
-            <name>Paymob Integration Team</name>
-            <email>integration@paymob.com</email>
-            <organization>Paymob</organization>
-            <organizationUrl>https://paymob.com</organizationUrl>
+            <name>Yusuf Hussien</name>
+            <url>https://github.com/Yusuf-Hussien</url>
         </developer>
     </developers>
 
