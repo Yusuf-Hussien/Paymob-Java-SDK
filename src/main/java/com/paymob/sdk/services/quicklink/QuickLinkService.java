@@ -26,6 +26,7 @@ public class QuickLinkService {
 
     /**
      * Creates a shareable payment link.
+     * 
      * @param request The quick link creation request
      * @return Payment link details
      */
@@ -57,9 +58,12 @@ public class QuickLinkService {
         if (request.getExpiresAt() != null) {
             bodyBuilder.addFormDataPart("expires_at", request.getExpiresAt());
         }
+        if (request.getCurrency() != null) {
+            bodyBuilder.addFormDataPart("currency", request.getCurrency().getCode());
+        }
 
         File image = request.getPaymentLinkImage();
-        if (image != null) {
+        if (image != null && image.exists()) {
             MediaType mediaType = MediaType.get("application/octet-stream");
             RequestBody fileBody = RequestBody.create(image, mediaType);
             bodyBuilder.addFormDataPart("payment_link_image", image.getName(), fileBody);
@@ -76,5 +80,18 @@ public class QuickLinkService {
                 .addFormDataPart("payment_link_id", String.valueOf(paymentLinkId))
                 .build();
         return httpClient.post("/api/ecommerce/payment-links/cancel", body, QuickLinkResponse.class, authStrategy);
+    }
+
+    /**
+     * Cancels an existing payment link.
+     * 
+     * @param response The response object from a created link
+     * @return Result of the cancellation
+     */
+    public QuickLinkResponse cancel(QuickLinkResponse response) {
+        if (response == null) {
+            throw new IllegalArgumentException("Response cannot be null");
+        }
+        return cancel((int) response.getId());
     }
 }

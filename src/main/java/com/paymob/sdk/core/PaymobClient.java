@@ -19,7 +19,6 @@ import com.paymob.sdk.services.quicklink.QuickLinkService;
  */
 public class PaymobClient {
     private final PaymobConfig config;
-    private final HttpClient httpClient;
     private final AuthStrategy secretKeyAuth;
     private final AuthStrategy bearerTokenAuth;
 
@@ -31,11 +30,21 @@ public class PaymobClient {
     private final SubscriptionPlanService subscriptionPlanService;
     private final QuickLinkService quickLinkService;
 
-    private PaymobClient(Builder builder) {
-        this.config = builder.config;
-        this.httpClient = builder.httpClient;
+    /**
+     * Initializes the client with a direct configuration.
+     * Uses the default HTTP client implementation.
+     * 
+     * @param config The SDK configuration
+     */
+    public PaymobClient(PaymobConfig config) {
+        this(config, createDefaultHttpClient(config));
+    }
+
+    private PaymobClient(PaymobConfig config, HttpClient httpClient) {
+        this.config = config;
         this.secretKeyAuth = new SecretKeyAuthStrategy(config.getSecretKey());
-        this.bearerTokenAuth = new BearerTokenAuthStrategy(config.getApiKey(), config.getRegion().getBaseUrl(), httpClient);
+        this.bearerTokenAuth = new BearerTokenAuthStrategy(config.getApiKey(), config.getRegion().getBaseUrl(),
+                httpClient);
 
         // Initialize services
         this.intentionService = new IntentionService(httpClient, secretKeyAuth, config);
@@ -45,6 +54,12 @@ public class PaymobClient {
         this.subscriptionPlanService = new SubscriptionPlanService(httpClient, bearerTokenAuth, config);
         this.subscriptionService = new SubscriptionService(httpClient, secretKeyAuth, bearerTokenAuth, config);
         this.quickLinkService = new QuickLinkService(httpClient, bearerTokenAuth, config);
+    }
+
+    private static HttpClient createDefaultHttpClient(PaymobConfig config) {
+        HttpClient client = new OkHttpClientAdapter();
+        client.setTimeout((int) config.getTimeout().getSeconds());
+        return client;
     }
 
     public static Builder builder() {
@@ -103,11 +118,9 @@ public class PaymobClient {
                 throw new IllegalArgumentException("Config is required");
             }
             if (httpClient == null) {
-                // Use default HTTP client implementation
-                httpClient = new OkHttpClientAdapter();
-                httpClient.setTimeout((int) config.getTimeout().getSeconds());
+                httpClient = createDefaultHttpClient(config);
             }
-            return new PaymobClient(this);
+            return new PaymobClient(config, httpClient);
         }
     }
 }

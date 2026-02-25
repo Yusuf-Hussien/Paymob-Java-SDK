@@ -21,6 +21,7 @@ public class IntentionService {
 
     /**
      * Creates a new payment intention.
+     * 
      * @param request The intention creation request
      * @return The intention response with payment keys and URLs
      */
@@ -31,8 +32,9 @@ public class IntentionService {
 
     /**
      * Updates an existing payment intention.
+     * 
      * @param clientSecret The client secret from the original intention
-     * @param request The update request
+     * @param request      The update request
      * @return The updated intention response
      */
     public IntentionResponse updateIntention(String clientSecret, IntentionRequest request) {
@@ -42,6 +44,7 @@ public class IntentionService {
 
     /**
      * Retrieves an existing payment intention.
+     * 
      * @param clientSecret The client secret from the intention
      * @return The intention details
      */
@@ -53,10 +56,25 @@ public class IntentionService {
 
     /**
      * Generates the Unified Checkout URL for the client.
+     * 
      * @param clientSecret The client secret obtained from createIntention
      * @return The URL to redirect the user to
      */
     public String getUnifiedCheckoutUrl(String clientSecret) {
-        return config.getRegion().getBaseUrl() + "/unifiedcheckout/?publicKey=" + config.getPublicKey() + "&clientSecret=" + clientSecret;
+        return config.getRegion().getBaseUrl() + "/unifiedcheckout/?publicKey=" + config.getPublicKey()
+                + "&clientSecret=" + clientSecret;
+    }
+
+    /**
+     * Generates the Unified Checkout URL for the client.
+     * 
+     * @param response The intention response obtained from createIntention
+     * @return The URL to redirect the user to
+     */
+    public String getUnifiedCheckoutUrl(IntentionResponse response) {
+        if (response == null || response.getClientSecret() == null) {
+            throw new IllegalArgumentException("Response or Client Secret cannot be null");
+        }
+        return getUnifiedCheckoutUrl(response.getClientSecret());
     }
 }

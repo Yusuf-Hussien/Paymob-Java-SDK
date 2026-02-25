@@ -7,6 +7,7 @@ import com.paymob.sdk.exceptions.*;
 import com.paymob.sdk.http.interceptors.AuthInterceptor;
 import com.paymob.sdk.http.interceptors.RetryInterceptor;
 import com.paymob.sdk.http.interceptors.LoggingInterceptor;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import okhttp3.*;
@@ -25,7 +26,8 @@ public class OkHttpClientAdapter implements HttpClient {
 
     public OkHttpClientAdapter() {
         this.objectMapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)

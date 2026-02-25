@@ -17,63 +17,63 @@ public class QuickLinkResponse {
     private ClientInfo clientInfo;
 
     @JsonProperty("reference_id")
-    @JsonAlias({"referenceId"})
+    @JsonAlias({ "referenceId" })
     private String referenceId;
 
     @JsonProperty("shorten_url")
-    @JsonAlias({"shortenUrl"})
+    @JsonAlias({ "shortenUrl" })
     private String shortenUrl;
 
     private boolean success;
     private String message;
 
     @JsonProperty("client_url")
-    @JsonAlias({"clientUrl"})
+    @JsonAlias({ "clientUrl" })
     private String clientUrl;
 
     @JsonProperty("payment_link_id")
-    @JsonAlias({"link_id", "linkId"})
+    @JsonAlias({ "link_id", "linkId" })
     private String linkId;
 
     @JsonProperty("amount_cents")
-    @JsonAlias({"amountCents"})
+    @JsonAlias({ "amountCents" })
     private int amountCents;
 
     @JsonProperty("payment_link_image")
-    @JsonAlias({"paymentLinkImage"})
+    @JsonAlias({ "paymentLinkImage" })
     private String paymentLinkImage;
 
     @JsonProperty("description")
     private String description;
 
     @JsonProperty("created_at")
-    @JsonAlias({"createdAt"})
+    @JsonAlias({ "createdAt" })
     private String createdAt;
 
     @JsonProperty("expires_at")
-    @JsonAlias({"expiresAt"})
+    @JsonAlias({ "expiresAt" })
     private String expiresAt;
 
     @JsonProperty("origin")
     private Integer origin;
 
     @JsonProperty("merchant_staff_tag")
-    @JsonAlias({"merchantStaffTag"})
+    @JsonAlias({ "merchantStaffTag" })
     private String merchantStaffTag;
 
     @JsonProperty("state")
     private String state;
 
     @JsonProperty("paid_at")
-    @JsonAlias({"paidAt"})
+    @JsonAlias({ "paidAt" })
     private String paidAt;
 
     @JsonProperty("redirection_url")
-    @JsonAlias({"redirectionUrl"})
+    @JsonAlias({ "redirectionUrl" })
     private String redirectionUrl;
 
     @JsonProperty("notification_url")
-    @JsonAlias({"notificationUrl"})
+    @JsonAlias({ "notificationUrl" })
     private String notificationUrl;
 
     @JsonProperty("order")
@@ -252,11 +252,11 @@ public class QuickLinkResponse {
         private String email;
 
         @JsonProperty("full_name")
-        @JsonAlias({"fullName"})
+        @JsonAlias({ "fullName" })
         private String fullName;
 
         @JsonProperty("phone_number")
-        @JsonAlias({"phoneNumber"})
+        @JsonAlias({ "phoneNumber" })
         private String phoneNumber;
 
         public String getEmail() {
@@ -282,5 +282,31 @@ public class QuickLinkResponse {
         public void setPhoneNumber(String phoneNumber) {
             this.phoneNumber = phoneNumber;
         }
+
+        @Override
+        public String toString() {
+            return "ClientInfo{" +
+                    "email='" + email + '\'' +
+                    ", fullName='" + fullName + '\'' +
+                    ", phoneNumber='" + phoneNumber + '\'' +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "QuickLinkResponse{" +
+                "id=" + id +
+                ", currency='" + currency + '\'' +
+                ", clientInfo=" + clientInfo +
+                ", referenceId='" + referenceId + '\'' +
+                ", shortenUrl='" + shortenUrl + '\'' +
+                ", success=" + success +
+                ", message='" + message + '\'' +
+                ", clientUrl='" + clientUrl + '\'' +
+                ", linkId='" + linkId + '\'' +
+                ", amountCents=" + amountCents +
+                ", state='" + state + '\'' +
+                '}';
     }
 }
