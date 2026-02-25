@@ -20,8 +20,9 @@ public class TransactionService {
 
     /**
      * Refunds a transaction (full or partial).
+     *
      * @param request The refund request
-     * @return Refund response
+     * @return Refund response containing transaction details
      */
     public TransactionResponse refundTransaction(RefundRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
@@ -30,8 +31,9 @@ public class TransactionService {
 
     /**
      * Voids a same-day transaction to avoid processing fees.
+     *
      * @param request The void request
-     * @return Void response
+     * @return Void response containing transaction details
      */
     public TransactionResponse voidTransaction(VoidRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
@@ -41,8 +43,9 @@ public class TransactionService {
     /**
      * Captures an authorize-only transaction.
      * Must be done within 14 days of authorization.
+     *
      * @param request The capture request
-     * @return Capture response
+     * @return Capture response containing transaction details
      */
     public TransactionResponse captureTransaction(CaptureRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
