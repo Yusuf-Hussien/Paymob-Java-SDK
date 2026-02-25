@@ -1,5 +1,6 @@
 package com.paymob.sdk.core;
 
+import com.paymob.sdk.models.enums.LogLevel;
 import java.time.Duration;
 
 /**
@@ -13,7 +14,7 @@ public class PaymobConfig {
     private final String hmacSecret;
     private final PaymobRegion region;
     private final Duration timeout;
-    private final boolean enableLogging;
+    private final LogLevel logLevel;
 
     private PaymobConfig(Builder builder) {
         this.secretKey = builder.secretKey;
@@ -22,7 +23,7 @@ public class PaymobConfig {
         this.hmacSecret = builder.hmacSecret;
         this.region = builder.region;
         this.timeout = builder.timeout;
-        this.enableLogging = builder.enableLogging;
+        this.logLevel = builder.logLevel;
     }
 
     public String getSecretKey() {
@@ -49,8 +50,8 @@ public class PaymobConfig {
         return timeout;
     }
 
-    public boolean isEnableLogging() {
-        return enableLogging;
+    public LogLevel getLogLevel() {
+        return logLevel;
     }
 
     public static Builder builder() {
@@ -64,7 +65,7 @@ public class PaymobConfig {
         private String hmacSecret;
         private PaymobRegion region = PaymobRegion.EGYPT;
         private Duration timeout = Duration.ofSeconds(60);
-        private boolean enableLogging = false;
+        private LogLevel logLevel = LogLevel.NONE;
 
         public Builder secretKey(String secretKey) {
             this.secretKey = secretKey;
@@ -96,8 +97,13 @@ public class PaymobConfig {
             return this;
         }
 
-        public Builder enableLogging(boolean enableLogging) {
-            this.enableLogging = enableLogging;
+        public Builder timeout(int seconds) {
+            this.timeout = Duration.ofSeconds(seconds);
+            return this;
+        }
+
+        public Builder logLevel(LogLevel logLevel) {
+            this.logLevel = logLevel;
             return this;
         }
 

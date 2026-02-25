@@ -36,4 +36,9 @@ public interface HttpClient {
      * Sets the timeout for requests.
      */
     void setTimeout(int timeoutSeconds);
+
+    /**
+     * Sets the logging level.
+     */
+    void setLogLevel(com.paymob.sdk.models.enums.LogLevel logLevel);
 }

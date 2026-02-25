@@ -3,6 +3,7 @@ package com.paymob.sdk.utils;
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
+import com.paymob.sdk.models.enums.LogLevel;
 import java.time.Duration;
 
 public class TestConfigUtils {
@@ -36,8 +37,8 @@ public class TestConfigUtils {
                 .publicKey(publicKey)
                 .hmacSecret(hmacSecret)
                 .region(region)
-                .timeout(Duration.ofSeconds(30))
-                .enableLogging(true)
+                .timeout(30)
+                .logLevel(LogLevel.NONE)
                 .build();
     }
 

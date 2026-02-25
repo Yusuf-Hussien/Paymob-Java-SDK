@@ -2,6 +2,7 @@ package com.paymob.sdk.core;
 
 import com.paymob.sdk.http.HttpClient;
 import com.paymob.sdk.services.intention.IntentionService;
+import com.paymob.sdk.models.enums.LogLevel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
@@ -14,7 +15,7 @@ import java.time.Duration;
 class PaymobClientTest {
     @Mock
     private HttpClient mockHttpClient;
-    
+
     private PaymobConfig config;
     private PaymobClient client;
 
@@ -27,7 +28,7 @@ class PaymobClientTest {
                 .publicKey("pk_test_123")
                 .region(PaymobRegion.EGYPT)
                 .build();
-        
+
         client = PaymobClient.builder()
                 .config(config)
                 .httpClient(mockHttpClient)
@@ -67,7 +68,7 @@ class PaymobClientTest {
     void testServicesAreSingletons() {
         IntentionService service1 = client.intentions();
         IntentionService service2 = client.intentions();
-        
+
         assertSame(service1, service2);
     }
 
@@ -76,7 +77,7 @@ class PaymobClientTest {
         PaymobClient clientWithDefault = PaymobClient.builder()
                 .config(config)
                 .build();
-        
+
         assertNotNull(clientWithDefault);
         assertEquals(config, clientWithDefault.getConfig());
     }
@@ -97,12 +98,12 @@ class PaymobClientTest {
                 .apiKey("ak_test_123")
                 .timeout(Duration.ofSeconds(30))
                 .build();
-        
+
         PaymobClient clientWithTimeout = PaymobClient.builder()
                 .config(configWithTimeout)
                 .httpClient(mockHttpClient)
                 .build();
-        
+
         assertEquals(Duration.ofSeconds(30), clientWithTimeout.getConfig().getTimeout());
     }
 
@@ -115,14 +116,14 @@ class PaymobClientTest {
                 .hmacSecret("hmac_secret")
                 .region(PaymobRegion.KSA)
                 .timeout(Duration.ofSeconds(45))
-                .enableLogging(true)
+                .logLevel(LogLevel.BODY)
                 .build();
-        
+
         PaymobClient fullClient = PaymobClient.builder()
                 .config(fullConfig)
                 .httpClient(mockHttpClient)
                 .build();
-        
+
         PaymobConfig actualConfig = fullClient.getConfig();
         assertEquals("sk_test_123", actualConfig.getSecretKey());
         assertEquals("ak_test_123", actualConfig.getApiKey());
@@ -130,6 +131,6 @@ class PaymobClientTest {
         assertEquals("hmac_secret", actualConfig.getHmacSecret());
         assertEquals(PaymobRegion.KSA, actualConfig.getRegion());
         assertEquals(Duration.ofSeconds(45), actualConfig.getTimeout());
-        assertTrue(actualConfig.isEnableLogging());
+        assertEquals(LogLevel.BODY, actualConfig.getLogLevel());
     }
 }

@@ -59,6 +59,7 @@ public class PaymobClient {
     private static HttpClient createDefaultHttpClient(PaymobConfig config) {
         HttpClient client = new OkHttpClientAdapter();
         client.setTimeout((int) config.getTimeout().getSeconds());
+        client.setLogLevel(config.getLogLevel());
         return client;
     }
 

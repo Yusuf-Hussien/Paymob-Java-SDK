@@ -1,6 +1,6 @@
 package com.paymob.sdk.core;
 
-import com.paymob.sdk.core.PaymobRegion;
+import com.paymob.sdk.models.enums.LogLevel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,13 +22,13 @@ class PaymobConfigTest {
     @Test
     void testBuildValidConfig() {
         PaymobConfig config = builder.build();
-        
+
         assertEquals("sk_test_123", config.getSecretKey());
         assertEquals("ak_test_123", config.getApiKey());
         assertEquals("pk_test_123", config.getPublicKey());
         assertEquals(PaymobRegion.EGYPT, config.getRegion());
         assertEquals(Duration.ofSeconds(60), config.getTimeout());
-        assertFalse(config.isEnableLogging());
+        assertEquals(LogLevel.NONE, config.getLogLevel());
     }
 
     @Test
@@ -36,12 +36,12 @@ class PaymobConfigTest {
         PaymobConfig config = builder
                 .hmacSecret("hmac_secret")
                 .timeout(Duration.ofSeconds(30))
-                .enableLogging(true)
+                .logLevel(LogLevel.HEADERS)
                 .build();
-        
+
         assertEquals("hmac_secret", config.getHmacSecret());
         assertEquals(Duration.ofSeconds(30), config.getTimeout());
-        assertTrue(config.isEnableLogging());
+        assertEquals(LogLevel.HEADERS, config.getLogLevel());
     }
 
     @Test
@@ -49,7 +49,7 @@ class PaymobConfigTest {
         PaymobConfig.Builder invalidBuilder = PaymobConfig.builder()
                 .apiKey("ak_test_123")
                 .region(PaymobRegion.EGYPT);
-        
+
         assertThrows(IllegalArgumentException.class, invalidBuilder::build);
     }
 
@@ -59,7 +59,7 @@ class PaymobConfigTest {
         PaymobConfig ksaConfig = builder.region(PaymobRegion.KSA).build();
         PaymobConfig uaeConfig = builder.region(PaymobRegion.UAE).build();
         PaymobConfig omanConfig = builder.region(PaymobRegion.OMAN).build();
-        
+
         assertEquals(PaymobRegion.EGYPT, egyptConfig.getRegion());
         assertEquals(PaymobRegion.KSA, ksaConfig.getRegion());
         assertEquals(PaymobRegion.UAE, uaeConfig.getRegion());
@@ -71,10 +71,10 @@ class PaymobConfigTest {
         PaymobConfig config = PaymobConfig.builder()
                 .secretKey("sk_test_123")
                 .build();
-        
+
         assertEquals(PaymobRegion.EGYPT, config.getRegion());
         assertEquals(Duration.ofSeconds(60), config.getTimeout());
-        assertFalse(config.isEnableLogging());
+        assertEquals(LogLevel.NONE, config.getLogLevel());
         assertNull(config.getApiKey());
         assertNull(config.getPublicKey());
         assertNull(config.getHmacSecret());

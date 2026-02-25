@@ -1,5 +1,7 @@
 package com.paymob.sdk.http;
 
+import com.paymob.sdk.models.enums.LogLevel;
+
 import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.core.auth.SecretKeyAuthStrategy;
 import com.paymob.sdk.core.auth.BearerTokenAuthStrategy;
@@ -23,18 +25,20 @@ public class OkHttpClientAdapter implements HttpClient {
     private OkHttpClient client;
     private ObjectMapper objectMapper;
     private String baseUrl;
+    private final LoggingInterceptor loggingInterceptor;
 
     public OkHttpClientAdapter() {
         this.objectMapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        this.loggingInterceptor = new LoggingInterceptor();
         this.client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(new AuthInterceptor())
                 .addInterceptor(new RetryInterceptor())
-                .addInterceptor(new LoggingInterceptor())
+                .addInterceptor(this.loggingInterceptor)
                 .build();
     }
 
@@ -138,6 +142,26 @@ public class OkHttpClientAdapter implements HttpClient {
                 .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
                 .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
                 .build();
+    }
+
+    @Override
+    public void setLogLevel(LogLevel logLevel) {
+        if (logLevel == null || logLevel == LogLevel.NONE) {
+            loggingInterceptor.setLogLevel(HttpLoggingInterceptor.Level.NONE);
+        } else {
+            switch (logLevel) {
+                case BASIC:
+                    loggingInterceptor.setLogLevel(HttpLoggingInterceptor.Level.BASIC);
+                    break;
+                case HEADERS:
+                    loggingInterceptor.setLogLevel(HttpLoggingInterceptor.Level.HEADERS);
+                    break;
+                case BODY:
+                default:
+                    loggingInterceptor.setLogLevel(HttpLoggingInterceptor.Level.BODY);
+                    break;
+            }
+        }
     }
 
     private void applyAuth(Request.Builder requestBuilder, AuthStrategy authStrategy) {
