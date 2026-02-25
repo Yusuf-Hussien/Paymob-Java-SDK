@@ -20,31 +20,46 @@ public class TransactionInquiryService {
     }
 
     /**
+     * Executes a custom inquiry request.
+     * 
+     * @param request The inquiry details
+     * @return Transaction details
+     */
+    public InquiryResponse inquiry(InquiryRequest request) {
+        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
+        return httpClient.post("/api/ecommerce/orders/transaction_inquiry", request, InquiryResponse.class,
+                authStrategy);
+    }
+
+    /**
      * Retrieves transaction by merchant order ID.
+     * 
      * @param merchantOrderId Your custom order reference
      * @return Transaction details
      */
     public InquiryResponse byMerchantOrderId(String merchantOrderId) {
-        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        InquiryRequest request = new InquiryRequest();
-        request.setMerchantOrderId(merchantOrderId);
-        return httpClient.post("/api/ecommerce/orders/transaction_inquiry", request, InquiryResponse.class, authStrategy);
+        InquiryRequest request = InquiryRequest.builder()
+                .merchantOrderId(merchantOrderId)
+                .build();
+        return inquiry(request);
     }
 
     /**
      * Retrieves transaction by Paymob order ID.
+     * 
      * @param orderId Paymob's internal order ID
      * @return Transaction details
      */
-    public InquiryResponse byOrderId(int orderId) {
-        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        InquiryRequest request = new InquiryRequest();
-        request.setOrderId(orderId);
-        return httpClient.post("/api/ecommerce/orders/transaction_inquiry", request, InquiryResponse.class, authStrategy);
+    public InquiryResponse byOrderId(long orderId) {
+        InquiryRequest request = InquiryRequest.builder()
+                .orderId((int) orderId)
+                .build();
+        return inquiry(request);
     }
 
     /**
      * Retrieves transaction by transaction ID.
+     * 
      * @param transactionId The specific transaction ID
      * @return Transaction details
      */

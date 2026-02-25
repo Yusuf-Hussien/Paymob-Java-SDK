@@ -1,16 +1,11 @@
 package com.paymob.sdk.services.inquiry;
 
+import com.paymob.sdk.models.common.Transaction;
+
 /**
  * Response for transaction inquiry operations.
+ * Extends Transaction to provide direct access to transaction details.
  */
-public class InquiryResponse {
-    private Object transactionData;
-
-    public Object getTransactionData() {
-        return transactionData;
-    }
-
-    public void setTransactionData(Object transactionData) {
-        this.transactionData = transactionData;
-    }
+public class InquiryResponse extends Transaction {
+    // Inherits all fields from Transaction
 }
