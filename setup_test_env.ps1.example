@@ -4,8 +4,12 @@
 $env:PAYMOB_SECRET_KEY = "sk_test_..."
 $env:PAYMOB_API_KEY = "ak_test_..."
 $env:PAYMOB_PUBLIC_KEY = "pk_test_..."
+$env:PAYMOB_INTEGRATION_ID = "12345678"
 $env:PAYMOB_HMAC_SECRET = "hmac_..." # Optional
 $env:PAYMOB_REGION = "EGYPT" # Options: EGYPT, KSA, UAE, OMAN
 
 Write-Host "Integration test environment variables set for the current session." -ForegroundColor Green
 Write-Host "You can now run: mvn test -Dtest=IntentionServiceIntegrationTest" -ForegroundColor Cyan
+
+#Then Run The Following Command at once: 
+#powershell -Command ".\setup_test_env.ps1; mvn test"
