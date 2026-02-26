@@ -45,24 +45,27 @@ public class TransactionWebhookEventParser implements WebhookEventParser {
 
             event.setRoot(root);
             event.setObj(obj);
-            event.setData(obj);
+            event.setData(obj); // Keep for backward compatibility
 
             JsonNode successNode = obj.get("success");
-            if (successNode != null && successNode.isBoolean()) {
+            if (successNode != null && !successNode.isNull()) {
                 event.setSuccess(successNode.asBoolean());
             }
 
-            boolean isRefunded = booleanField(obj, "is_refunded");
-            boolean isVoided = booleanField(obj, "is_voided");
+            // Only set type if it looks like a real transaction (has an ID)
+            if (obj.has("id")) {
+                boolean isRefunded = booleanField(obj, "is_refunded");
+                boolean isVoided = booleanField(obj, "is_voided");
 
-            if (isRefunded) {
-                event.setType(WebhookEventType.TRANSACTION_REFUNDED);
-            } else if (isVoided) {
-                event.setType(WebhookEventType.TRANSACTION_VOIDED);
-            } else if (Boolean.TRUE.equals(event.getSuccess())) {
-                event.setType(WebhookEventType.TRANSACTION_SUCCESSFUL);
-            } else if (Boolean.FALSE.equals(event.getSuccess())) {
-                event.setType(WebhookEventType.TRANSACTION_FAILED);
+                if (isRefunded) {
+                    event.setType(WebhookEventType.TRANSACTION_REFUNDED);
+                } else if (isVoided) {
+                    event.setType(WebhookEventType.TRANSACTION_VOIDED);
+                } else if (Boolean.TRUE.equals(event.getSuccess())) {
+                    event.setType(WebhookEventType.TRANSACTION_SUCCESSFUL);
+                } else {
+                    event.setType(WebhookEventType.TRANSACTION_FAILED);
+                }
             }
         } catch (Exception ignored) {
         }

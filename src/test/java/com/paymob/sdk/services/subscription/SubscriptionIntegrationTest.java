@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
@@ -30,15 +28,17 @@ class SubscriptionIntegrationTest {
         SubscriptionListRequest filters = SubscriptionListRequest.builder()
                 .state("active")
                 .build();
-        List<SubscriptionResponse> list = client.subscriptions().list(filters);
-        assertNotNull(list);
+        SubscriptionsPage page = client.subscriptions().list(filters);
+        assertNotNull(page);
+        assertNotNull(page.getResults());
     }
 
     @Test
     void testListTransactionsWithInvalidId() {
         long invalidId = 9999999L;
-        assertThrows(Exception.class, () -> {
-            client.subscriptions().listTransactions(invalidId);
-        });
+        // API returns 200 OK with empty results for non-existent subscription
+        SubscriptionTransactionsPage page = client.subscriptions().listTransactions(invalidId);
+        assertNotNull(page);
+        assertTrue(page.getResults() == null || page.getResults().isEmpty());
     }
 }

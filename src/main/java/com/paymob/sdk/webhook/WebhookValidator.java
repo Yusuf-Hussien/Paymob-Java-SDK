@@ -116,6 +116,9 @@ public class WebhookValidator {
 
         try {
             String expectedHmac = calculateCallbackHmac(queryParams);
+            if (expectedHmac == null) {
+                return false;
+            }
             return timingSafeHexEquals(expectedHmac, receivedHmac);
         } catch (Exception e) {
             return false;
@@ -123,6 +126,16 @@ public class WebhookValidator {
     }
 
     private String calculateCallbackHmac(Map<String, String> queryParams) throws Exception {
+        if (queryParams.containsKey("token") && queryParams.containsKey("masked_pan")) {
+            return calculateCardTokenCallbackHmac(queryParams);
+        } else if (queryParams.containsKey("subscription_data.id") || queryParams.containsKey("trigger_type")) {
+            return calculateSubscriptionCallbackHmac(queryParams);
+        } else {
+            return calculateTransactionCallbackHmac(queryParams);
+        }
+    }
+
+    private String calculateTransactionCallbackHmac(Map<String, String> queryParams) throws Exception {
         String[] fields = {
                 "amount_cents", "created_at", "currency", "error_occured", "has_parent_transaction",
                 "id", "integration_id", "is_3d_secure", "is_auth", "is_capture", "is_refunded",
@@ -139,18 +152,57 @@ public class WebhookValidator {
                     value = queryParams.get("order");
                 }
             }
+            if (value == null && "id".equals(field)) {
+                value = queryParams.get("obj.id");
+            }
             if (value == null) {
                 value = "";
             }
             concatenated.append(value);
         }
+        return computeHmac(concatenated.toString());
+    }
 
+    private String calculateCardTokenCallbackHmac(Map<String, String> queryParams) throws Exception {
+        String[] fields = {
+                "card_subtype", "created_at", "email", "id", "masked_pan", "merchant_id", "order_id", "token"
+        };
+
+        StringBuilder concatenated = new StringBuilder();
+        for (String field : fields) {
+            String value = queryParams.get(field);
+            if (value == null) {
+                value = "";
+            }
+            concatenated.append(value);
+        }
+        return computeHmac(concatenated.toString());
+    }
+
+    private String calculateSubscriptionCallbackHmac(Map<String, String> queryParams) throws Exception {
+        String triggerType = queryParams.getOrDefault("trigger_type", "");
+        String subId = queryParams.get("subscription_data.id");
+        if (subId == null) {
+            subId = queryParams.get("subscription_id");
+            if (subId == null) {
+                subId = queryParams.get("id");
+            }
+        }
+        if (subId == null)
+            subId = "";
+
+        // Matching POST logic: {trigger_type}for{subscription_data.id}
+        String concatenated = triggerType + "for" + subId;
+        return computeHmac(concatenated);
+    }
+
+    private String computeHmac(String concatenated) throws Exception {
         Mac sha512Hmac = Mac.getInstance("HmacSHA512");
         SecretKeySpec keySpec = new SecretKeySpec(
                 hmacSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
         sha512Hmac.init(keySpec);
         byte[] macData = sha512Hmac.doFinal(
-                concatenated.toString().getBytes(StandardCharsets.UTF_8));
+                concatenated.getBytes(StandardCharsets.UTF_8));
 
         return HexFormat.of().formatHex(macData).toLowerCase();
     }

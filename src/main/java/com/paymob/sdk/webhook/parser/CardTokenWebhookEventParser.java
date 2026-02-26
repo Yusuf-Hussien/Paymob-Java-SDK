@@ -37,11 +37,12 @@ public class CardTokenWebhookEventParser implements WebhookEventParser {
             event.setRoot(root);
             event.setObj(obj);
             event.setType(WebhookEventType.CARD_TOKEN);
+            event.setSuccess(true);
 
             if (obj.has("token")) {
                 event.setData(obj.get("token").asText());
             } else {
-                event.setData(obj); // Fallback to full object if token is missing
+                event.setData(obj); // Fallback
             }
 
         } catch (Exception ignored) {

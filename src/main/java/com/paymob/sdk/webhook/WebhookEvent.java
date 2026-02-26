@@ -15,9 +15,29 @@ public class WebhookEvent {
     private Boolean success;
     private JsonNode obj;
     private JsonNode root;
+    private static final com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     public WebhookEvent(String rawPayload) {
         this.rawPayload = rawPayload;
+    }
+
+    /**
+     * Attempts to deserialize the 'obj' (event data) into the specified class.
+     * 
+     * @param <T>   The target type
+     * @param clazz The class to deserialize into
+     * @return The deserialized object, or null if obj is missing or deserialization
+     *         fails
+     */
+    public <T> T getData(Class<T> clazz) {
+        if (obj == null || obj.isNull()) {
+            return null;
+        }
+        try {
+            return mapper.treeToValue(obj, clazz);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return null;
+        }
     }
 
     public String getRawPayload() {

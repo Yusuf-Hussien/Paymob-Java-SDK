@@ -10,7 +10,7 @@ import com.paymob.sdk.services.transaction.TransactionService;
 import com.paymob.sdk.services.inquiry.TransactionInquiryService;
 import com.paymob.sdk.services.savedcard.SavedCardService;
 import com.paymob.sdk.services.subscription.SubscriptionService;
-import com.paymob.sdk.services.subscription.SubscriptionPlanService;
+import com.paymob.sdk.services.subscription.plan.SubscriptionPlanService;
 import com.paymob.sdk.services.quicklink.QuickLinkService;
 
 /**

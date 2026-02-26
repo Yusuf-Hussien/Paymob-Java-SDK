@@ -1,4 +1,4 @@
-package com.paymob.sdk.services.subscription;
+package com.paymob.sdk.services.subscription.plan;
 
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.auth.AuthStrategy;

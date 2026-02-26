@@ -64,9 +64,9 @@ public class SubscriptionService {
      * Lists subscriptions with optional filters.
      * 
      * @param filters Query filters
-     * @return List of subscriptions
+     * @return Paginated list of subscriptions
      */
-    public java.util.List<SubscriptionResponse> list(SubscriptionListRequest filters) {
+    public SubscriptionsPage list(SubscriptionListRequest filters) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
         String endpoint = "/api/acceptance/subscriptions";
         String query = buildListQuery(filters);
@@ -74,8 +74,7 @@ public class SubscriptionService {
             endpoint = endpoint + "?" + query;
         }
 
-        SubscriptionResponse[] response = httpClient.get(endpoint, SubscriptionResponse[].class, bearerTokenAuth);
-        return response == null ? java.util.List.of() : java.util.Arrays.asList(response);
+        return httpClient.get(endpoint, SubscriptionsPage.class, bearerTokenAuth);
     }
 
     /**
@@ -99,7 +98,8 @@ public class SubscriptionService {
      */
     public SubscriptionResponse suspend(long subscriptionId) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/suspend", new Object(),
+        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/suspend",
+                java.util.Collections.emptyMap(),
                 SubscriptionResponse.class, bearerTokenAuth);
     }
 
@@ -111,7 +111,8 @@ public class SubscriptionService {
      */
     public SubscriptionResponse resume(long subscriptionId) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/resume", new Object(),
+        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/resume",
+                java.util.Collections.emptyMap(),
                 SubscriptionResponse.class, bearerTokenAuth);
     }
 
@@ -123,7 +124,8 @@ public class SubscriptionService {
      */
     public SubscriptionResponse cancel(long subscriptionId) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
-        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/cancel", new Object(),
+        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/cancel",
+                java.util.Collections.emptyMap(),
                 SubscriptionResponse.class, bearerTokenAuth);
     }
 

@@ -44,6 +44,7 @@ public class SubscriptionWebhookEventParser implements WebhookEventParser {
                 String trigger = triggerType.asText("");
                 WebhookEventType type = WebhookEventType.fromTriggerType(trigger);
                 event.setType(type);
+                event.setSuccess(true); // Subscription events generally imply success of the trigger
             }
         } catch (Exception ignored) {
         }

@@ -1,4 +1,4 @@
-package com.paymob.sdk.services.subscription;
+package com.paymob.sdk.services.subscription.plan;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -116,8 +116,8 @@ public class SubscriptionPlanRequest {
         return numberOf_deductions;
     }
 
-    public void setNumberOfDeductions(Integer numberOfDeductions) {
-        this.numberOf_deductions = numberOfDeductions;
+    public void setNumberOfDeductions(Integer numberOf_deductions) {
+        this.numberOf_deductions = numberOf_deductions;
     }
 
     public int getAmountCents() {

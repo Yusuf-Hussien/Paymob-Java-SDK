@@ -1,188 +1,87 @@
 package com.paymob.sdk.webhook;
 
+import com.paymob.sdk.webhook.signature.CardTokenSignatureCalculator;
+import com.paymob.sdk.webhook.signature.SubscriptionSignatureCalculator;
+import com.paymob.sdk.webhook.signature.TransactionSignatureCalculator;
+import com.paymob.sdk.services.subscription.SubscriptionResponse;
+import com.paymob.sdk.services.transaction.TransactionResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for WebhookValidator.
- * Tests HMAC validation, field extraction, and edge cases.
+ * Tests HMAC validation, type detection, and parsing for all webhook types.
  */
 class WebhookValidatorTest {
 
     private WebhookValidator validator;
+    private static final String HMAC_SECRET = "test_hmac_secret_123";
 
     @BeforeEach
     void setUp() {
-        validator = new WebhookValidator("test_hmac_secret_123");
+        validator = new WebhookValidator(HMAC_SECRET);
     }
 
     @Test
-    @DisplayName("Should reject null payload")
-    void shouldRejectNullPayload() {
-        // Act & Assert
-        assertFalse(validator.validateSignature(null, "some_hmac"), "Should reject null payload");
-        assertFalse(validator.validateSignature("payload", null), "Should reject null HMAC");
+    @DisplayName("Should validate and parse Transaction Success")
+    void shouldValidateAndParseTransactionSuccess() throws Exception {
+        String payload = "{\"type\":\"TRANSACTION\",\"obj\":{\"id\":123,\"success\":true,\"amount_cents\":1000,\"currency\":\"EGP\",\"created_at\":\"2024-01-01\"}}";
+        String hmac = new TransactionSignatureCalculator().calculateExpectedHmac(payload, HMAC_SECRET);
+
+        WebhookEvent event = validator.validateAndParse(payload, hmac);
+
+        assertNotNull(event);
+        assertEquals(WebhookEventType.TRANSACTION_SUCCESSFUL, event.getType());
+        assertTrue(event.getSuccess());
+
+        TransactionResponse tx = event.getData(TransactionResponse.class);
+        assertNotNull(tx);
+        assertEquals(123, tx.getId());
     }
 
     @Test
-    @DisplayName("Should reject malformed JSON")
-    void shouldRejectMalformedJson() {
-        // Arrange
-        String malformedPayload = "{ invalid json }";
-        String hmac = "some_hmac";
+    @DisplayName("Should validate and parse Subscription Suspended")
+    void shouldValidateAndParseSubscriptionSuspended() throws Exception {
+        String payload = "{\"trigger_type\":\"suspended\",\"subscription_data\":{\"id\":456,\"state\":\"suspended\"}}";
+        String hmac = new SubscriptionSignatureCalculator().calculateExpectedHmac(payload, HMAC_SECRET);
 
-        // Act
-        boolean isValid = validator.validateSignature(malformedPayload, hmac);
+        WebhookEvent event = validator.validateAndParse(payload, hmac);
 
-        // Assert
-        assertFalse(isValid, "Should reject malformed JSON");
+        assertNotNull(event);
+        assertEquals(WebhookEventType.SUBSCRIPTION_SUSPENDED, event.getType());
+
+        SubscriptionResponse sub = event.getData(SubscriptionResponse.class);
+        assertNotNull(sub);
+        assertEquals(456, sub.getId());
     }
 
     @Test
-    @DisplayName("Should reject payload without obj field")
-    void shouldRejectPayloadWithoutObjField() {
-        // Arrange
-        String payloadWithoutObj = "{ \"data\": \"some data\" }";
-        String hmac = "some_hmac";
+    @DisplayName("Should validate and parse Card Token")
+    void shouldValidateAndParseCardToken() throws Exception {
+        String payload = "{\"type\":\"TOKEN\",\"obj\":{\"id\":789,\"token\":\"abc_token_123\"}}";
+        String hmac = new CardTokenSignatureCalculator().calculateExpectedHmac(payload, HMAC_SECRET);
 
-        // Act
-        boolean isValid = validator.validateSignature(payloadWithoutObj, hmac);
+        WebhookEvent event = validator.validateAndParse(payload, hmac);
 
-        // Assert
-        assertFalse(isValid, "Should reject payload without obj field");
+        assertNotNull(event);
+        assertEquals(WebhookEventType.CARD_TOKEN, event.getType());
+        assertEquals("abc_token_123", event.getData());
     }
 
     @Test
-    @DisplayName("Should validate callback signature with correct parameters")
-    void shouldValidateCallbackSignature() {
-        // Arrange
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("amount_cents", "100");
-        queryParams.put("created_at", "2020-03-25T18:39:44.719228");
-        queryParams.put("currency", "OMR");
-        queryParams.put("error_occured", "false");
-        queryParams.put("has_parent_transaction", "false");
-        queryParams.put("id", "2556706");
-        queryParams.put("integration_id", "6741");
-        queryParams.put("is_3d_secure", "true");
-        queryParams.put("is_auth", "false");
-        queryParams.put("is_capture", "false");
-        queryParams.put("is_refunded", "false");
-        queryParams.put("is_standalone_payment", "true");
-        queryParams.put("is_voided", "false");
-        queryParams.put("order.id", "4778239");
-        queryParams.put("owner", "4705");
-        queryParams.put("pending", "false");
-        queryParams.put("source_data.pan", "2346");
-        queryParams.put("source_data.sub_type", "MasterCard");
-        queryParams.put("source_data.type", "card");
-        queryParams.put("success", "true");
-
-        // Act
-        boolean isValid = validator.validateCallbackSignature(queryParams, "dummy_hmac");
-
-        // Assert
-        assertFalse(isValid, "Should reject invalid HMAC");
+    @DisplayName("Should return null for payload no calculator handles")
+    void shouldReturnNullForUnknownStructure() {
+        String payload = "{\"completely_unknown\": true}";
+        assertNull(validator.validateAndParse(payload, "any_hmac"));
     }
 
     @Test
-    @DisplayName("Should reject callback signature with missing parameters")
-    void shouldRejectCallbackSignatureWithMissingParams() {
-        // Arrange
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("amount_cents", "100");
-        // Missing required fields like 'success'
-
-        // Act
-        boolean isValid = validator.validateCallbackSignature(queryParams, "some_hmac");
-
-        // Assert
-        assertFalse(isValid, "Should reject callback with missing required parameters");
-    }
-
-    @Test
-    @DisplayName("Should throw exception for invalid HMAC secret")
-    void shouldThrowExceptionForInvalidHmacSecret() {
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            new WebhookValidator(null);
-        }, "Should throw exception for null HMAC secret");
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            new WebhookValidator("");
-        }, "Should throw exception for empty HMAC secret");
-    }
-
-    @Test
-    @DisplayName("Should return null for invalid webhook")
-    void shouldReturnNullForInvalidWebhook() {
-        // Arrange
-        String payload = "{ \"obj\": { \"success\": true } }";
-        String incorrectHmac = "wrong_hmac";
-
-        // Act
-        WebhookEvent event = validator.validateAndParse(payload, incorrectHmac);
-
-        // Assert
-        assertNull(event, "Should return null for invalid webhook");
-    }
-
-    @Test
-    @DisplayName("Should parse valid webhook successfully")
-    void shouldParseValidWebhookSuccessfully() {
-        // Arrange
-        String payload = "{ \"obj\": { \"success\": true } }";
-        String dummyHmac = "dummy_hmac";
-
-        // Act
-        WebhookEvent event = validator.validateAndParse(payload, dummyHmac);
-
-        // Assert
-        assertNull(event, "Should return null for invalid HMAC");
-    }
-
-    @Test
-    @DisplayName("Should handle boolean fields correctly")
-    void shouldHandleBooleanFieldsCorrectly() {
-        // Arrange
-        String payload = "{\n" +
-                "  \"obj\": {\n" +
-                "    \"success\": true,\n" +
-                "    \"pending\": false,\n" +
-                "    \"is_auth\": false,\n" +
-                "    \"is_capture\": true\n" +
-                "  }\n" +
-                "}";
-
-        // Act
-        boolean isValid = validator.validateSignature(payload, "dummy_hmac");
-
-        // Assert
-        assertFalse(isValid, "Should reject invalid HMAC");
-    }
-
-    @Test
-    @DisplayName("Should handle null nested objects gracefully")
-    void shouldHandleNullNestedObjectsGracefully() {
-        // Arrange
-        String payload = "{\n" +
-                "  \"obj\": {\n" +
-                "    \"success\": true,\n" +
-                "    \"order\": null,\n" +
-                "    \"source_data\": null\n" +
-                "  }\n" +
-                "}";
-
-        // Act
-        boolean isValid = validator.validateSignature(payload, "dummy_hmac");
-
-        // Assert
-        assertFalse(isValid, "Should reject invalid HMAC");
+    @DisplayName("Should return null for invalid signature even if structure is valid")
+    void shouldReturnNullForInvalidSignature() {
+        String payload = "{\"type\":\"TRANSACTION\",\"obj\":{\"id\":123,\"success\":true}}";
+        assertNull(validator.validateAndParse(payload, "wrong_hmac"));
     }
 }

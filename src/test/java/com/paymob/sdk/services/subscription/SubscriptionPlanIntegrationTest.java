@@ -1,6 +1,10 @@
 package com.paymob.sdk.services.subscription;
 
 import com.paymob.sdk.core.PaymobClient;
+import com.paymob.sdk.services.subscription.plan.SubscriptionPlanRequest;
+import com.paymob.sdk.services.subscription.plan.SubscriptionPlanResponse;
+import com.paymob.sdk.services.subscription.plan.SubscriptionPlanUpdateRequest;
+import com.paymob.sdk.services.subscription.plan.SubscriptionPlansPage;
 import com.paymob.sdk.utils.TestConfigUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

@@ -1,4 +1,4 @@
-package com.paymob.sdk.services.subscription;
+package com.paymob.sdk.services.subscription.plan;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;

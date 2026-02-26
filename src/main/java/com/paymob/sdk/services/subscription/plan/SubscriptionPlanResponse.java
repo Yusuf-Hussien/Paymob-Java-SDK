@@ -1,4 +1,4 @@
-package com.paymob.sdk.services.subscription;
+package com.paymob.sdk.services.subscription.plan;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,46 +15,46 @@ public class SubscriptionPlanResponse {
     private Integer frequency;
 
     @JsonProperty("created_at")
-    @JsonAlias({"createdAt"})
+    @JsonAlias({ "createdAt" })
     private String createdAt;
 
     @JsonProperty("updated_at")
-    @JsonAlias({"updatedAt"})
+    @JsonAlias({ "updatedAt" })
     private String updatedAt;
 
     @JsonProperty("name")
     private String name;
 
     @JsonProperty("reminder_days")
-    @JsonAlias({"reminderDays"})
+    @JsonAlias({ "reminderDays" })
     private Integer reminderDays;
 
     @JsonProperty("retrial_days")
-    @JsonAlias({"retrialDays"})
+    @JsonAlias({ "retrialDays" })
     private Integer retrialDays;
 
     @JsonProperty("plan_type")
-    @JsonAlias({"planType"})
+    @JsonAlias({ "planType" })
     private String planType;
 
     @JsonProperty("number_of_deductions")
-    @JsonAlias({"numberOfDeductions"})
+    @JsonAlias({ "numberOfDeductions" })
     private Integer numberOfDeductions;
 
     @JsonProperty("amount_cents")
-    @JsonAlias({"amountCents"})
+    @JsonAlias({ "amountCents" })
     private Integer amountCents;
 
     @JsonProperty("use_transaction_amount")
-    @JsonAlias({"useTransactionAmount"})
+    @JsonAlias({ "useTransactionAmount" })
     private Boolean useTransactionAmount;
 
     @JsonProperty("is_active")
-    @JsonAlias({"isActive"})
+    @JsonAlias({ "isActive" })
     private Boolean isActive;
 
     @JsonProperty("webhook_url")
-    @JsonAlias({"webhookUrl"})
+    @JsonAlias({ "webhookUrl" })
     private String webhookUrl;
 
     @JsonProperty("integration")
