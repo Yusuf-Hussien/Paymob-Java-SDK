@@ -1,28 +1,29 @@
-package com.paymob.sdk.services.quicklink;
+package com.paymob.sdk.integration.services;
 
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.models.enums.Currency;
-import com.paymob.sdk.utils.TestConfigUtils;
+import com.paymob.sdk.services.quicklink.QuickLinkRequest;
+import com.paymob.sdk.services.quicklink.QuickLinkResponse;
+import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
-class QuickLinkServiceIntegrationTest {
+class QuickLinkServiceIT {
     private PaymobClient client;
 
     @BeforeEach
     void setUp() {
-        client = TestConfigUtils.createClientFromEnv();
+        client = IntegrationTestConfig.createClientFromEnv();
     }
 
     @Test
     void testCreateAndCancelQuickLinkSuccess() {
-        // 1. Prepare request using Builder Pattern
         QuickLinkRequest request = QuickLinkRequest.builder()
-                .amountCents(10000) // 100.00 EGP
-                .paymentMethods(TestConfigUtils.getIntegrationId())
+                .amountCents(10000)
+                .paymentMethods(IntegrationTestConfig.getIntegrationId())
                 .currency(Currency.EGP)
                 .isLive(false)
                 .fullName("Integration Test User")
@@ -32,19 +33,14 @@ class QuickLinkServiceIntegrationTest {
                 .paymentLinkImage(new java.io.File("docs/paymob.jpg"))
                 .build();
 
-        // 2. Execute Create
         QuickLinkResponse response = client.quickLinks().createPaymentLink(request);
 
-        // System.out.println("client URL: " + response.getClientUrl());
-
-        // 3. Assert Create
         assertNotNull(response);
         assertTrue(response.getId() > 0 || response.getClientUrl() != null, "QuickLink creation failed");
         assertNotNull(response.getClientUrl());
-        // 4. Execute Cancel
+
         QuickLinkResponse cancelResponse = client.quickLinks().cancel(response);
 
-        // 5. Assert Cancel
         assertNotNull(cancelResponse);
         assertTrue(cancelResponse.isSuccess() || "Canceled by merchant".equals(cancelResponse.getMessage()),
                 "QuickLink cancellation failed: " + cancelResponse.getMessage());

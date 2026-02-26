@@ -1,10 +1,12 @@
-package com.paymob.sdk.services.intention;
+package com.paymob.sdk.integration.services;
 
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.models.common.BillingData;
 import com.paymob.sdk.models.common.Item;
 import com.paymob.sdk.models.enums.Currency;
-import com.paymob.sdk.utils.TestConfigUtils;
+import com.paymob.sdk.services.intention.IntentionRequest;
+import com.paymob.sdk.services.intention.IntentionResponse;
+import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,12 +14,12 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
-class IntentionServiceIntegrationTest {
+class IntentionServiceIT {
     private PaymobClient client;
 
     @BeforeEach
     void setUp() {
-        client = TestConfigUtils.createClientFromEnv();
+        client = IntegrationTestConfig.createClientFromEnv();
     }
 
     @Test
@@ -29,7 +31,6 @@ class IntentionServiceIntegrationTest {
         assertNotNull(response.getId());
         assertNotNull(response.getIntentionOrderId());
 
-        // Final verify URL generation
         String checkoutUrl = client.intentions().getUnifiedCheckoutUrl(response);
         assertTrue(checkoutUrl.contains(response.getClientSecret()));
         assertTrue(checkoutUrl.contains(client.getConfig().getPublicKey()));
@@ -37,11 +38,9 @@ class IntentionServiceIntegrationTest {
 
     @Test
     void testUpdateIntentionSuccess() {
-        // 1. Create
         IntentionResponse createResponse = createTestIntention(10000);
         assertNotNull(createResponse.getClientSecret());
 
-        // 2. Prepare Update Request
         int newAmount = 15000;
         Item newItem = Item.builder()
                 .name("Updated Item")
@@ -56,24 +55,19 @@ class IntentionServiceIntegrationTest {
                 .acceptOrderId(createResponse.getIntentionOrderId())
                 .build();
 
-        // 3. Execute Update
         IntentionResponse updateResponse = client.intentions().updateIntention(createResponse.getClientSecret(),
                 updateRequest);
 
-        // 4. Assert
         assertNotNull(updateResponse);
         assertEquals(newAmount, updateResponse.getAmount());
     }
 
     @Test
     void testRetrieveIntentionSuccess() {
-        // 1. Create
         IntentionResponse createResponse = createTestIntention(10000);
 
-        // 2. Retrieve
         IntentionResponse retrievedResponse = client.intentions().retrieveIntention(createResponse.getClientSecret());
 
-        // 3. Assert
         assertNotNull(retrievedResponse);
         assertEquals(createResponse.getId(), retrievedResponse.getId());
         assertEquals(createResponse.getClientSecret(), retrievedResponse.getClientSecret());
@@ -92,7 +86,7 @@ class IntentionServiceIntegrationTest {
                 .currency(Currency.EGP)
                 .items(Collections.singletonList(item))
                 .billingData(createBillingData())
-                .paymentMethods(Collections.singletonList(TestConfigUtils.getIntegrationId()))
+                .paymentMethods(Collections.singletonList(IntegrationTestConfig.getIntegrationId()))
                 .build();
 
         return client.intentions().createIntention(request);

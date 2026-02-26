@@ -1,12 +1,26 @@
-package com.paymob.sdk.utils;
+package com.paymob.sdk.testutil;
 
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
 import com.paymob.sdk.models.enums.LogLevel;
-import java.time.Duration;
 
-public class TestConfigUtils {
+/**
+ * Environment-variable–based configuration for integration tests.
+ * <p>
+ * Required env vars:
+ * <ul>
+ * <li>{@code PAYMOB_SECRET_KEY}</li>
+ * </ul>
+ * Optional env vars: {@code PAYMOB_API_KEY}, {@code PAYMOB_PUBLIC_KEY},
+ * {@code PAYMOB_HMAC_SECRET}, {@code PAYMOB_REGION},
+ * {@code PAYMOB_INTEGRATION_ID}.
+ */
+public final class IntegrationTestConfig {
+
+    private IntegrationTestConfig() {
+    }
+
     public static PaymobClient createClientFromEnv() {
         return new PaymobClient(loadFromEnv());
     }
@@ -19,7 +33,8 @@ public class TestConfigUtils {
         String regionStr = System.getenv("PAYMOB_REGION");
 
         if (secretKey == null || secretKey.isEmpty()) {
-            throw new IllegalStateException("PAYMOB_SECRET_KEY environment variable is required for integration tests");
+            throw new IllegalStateException(
+                    "PAYMOB_SECRET_KEY environment variable is required for integration tests");
         }
 
         PaymobRegion region = PaymobRegion.EGYPT;

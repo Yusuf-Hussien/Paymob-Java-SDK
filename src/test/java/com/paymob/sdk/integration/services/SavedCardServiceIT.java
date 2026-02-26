@@ -1,8 +1,10 @@
-package com.paymob.sdk.services.savedcard;
+package com.paymob.sdk.integration.services;
 
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.exceptions.PaymobException;
-import com.paymob.sdk.utils.TestConfigUtils;
+import com.paymob.sdk.services.savedcard.CitPaymentRequest;
+import com.paymob.sdk.services.savedcard.MitPaymentRequest;
+import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -10,12 +12,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
-class SavedCardServiceIntegrationTest {
+class SavedCardServiceIT {
     private PaymobClient client;
 
     @BeforeEach
     void setUp() {
-        client = TestConfigUtils.createClientFromEnv();
+        client = IntegrationTestConfig.createClientFromEnv();
     }
 
     @Test
@@ -27,7 +29,6 @@ class SavedCardServiceIntegrationTest {
                 .currency("EGP")
                 .build();
 
-        // Should probably fail with 4xx if the token is invalid
         PaymobException exception = assertThrows(PaymobException.class, () -> {
             client.savedCards().processCitPayment(request);
         });

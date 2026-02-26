@@ -1,7 +1,10 @@
-package com.paymob.sdk.services.subscription;
+package com.paymob.sdk.integration.services;
 
 import com.paymob.sdk.core.PaymobClient;
-import com.paymob.sdk.utils.TestConfigUtils;
+import com.paymob.sdk.services.subscription.SubscriptionListRequest;
+import com.paymob.sdk.services.subscription.SubscriptionTransactionsPage;
+import com.paymob.sdk.services.subscription.SubscriptionsPage;
+import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -9,12 +12,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
-class SubscriptionIntegrationTest {
+class SubscriptionServiceIT {
     private PaymobClient client;
 
     @BeforeEach
     void setUp() {
-        client = TestConfigUtils.createClientFromEnv();
+        client = IntegrationTestConfig.createClientFromEnv();
     }
 
     @Test
@@ -36,7 +39,6 @@ class SubscriptionIntegrationTest {
     @Test
     void testListTransactionsWithInvalidId() {
         long invalidId = 9999999L;
-        // API returns 200 OK with empty results for non-existent subscription
         SubscriptionTransactionsPage page = client.subscriptions().listTransactions(invalidId);
         assertNotNull(page);
         assertTrue(page.getResults() == null || page.getResults().isEmpty());

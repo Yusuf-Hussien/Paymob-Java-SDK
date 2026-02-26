@@ -1,9 +1,12 @@
-package com.paymob.sdk.services.transaction;
+package com.paymob.sdk.integration.services;
 
 import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.exceptions.PaymobException;
 import com.paymob.sdk.exceptions.ResourceNotFoundException;
-import com.paymob.sdk.utils.TestConfigUtils;
+import com.paymob.sdk.services.transaction.CaptureRequest;
+import com.paymob.sdk.services.transaction.RefundRequest;
+import com.paymob.sdk.services.transaction.VoidRequest;
+import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -11,12 +14,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
-class TransactionServiceIntegrationTest {
+class TransactionServiceIT {
     private PaymobClient client;
 
     @BeforeEach
     void setUp() {
-        client = TestConfigUtils.createClientFromEnv();
+        client = IntegrationTestConfig.createClientFromEnv();
     }
 
     @Test
@@ -26,7 +29,6 @@ class TransactionServiceIntegrationTest {
                 .amountCents(100)
                 .build();
 
-        // Refund returns 422 for invalid IDs
         PaymobException exception = assertThrows(PaymobException.class, () -> {
             client.transactions().refundTransaction(request);
         });
@@ -40,7 +42,6 @@ class TransactionServiceIntegrationTest {
                 .transactionId(1L)
                 .build();
 
-        // Void returns 422 for invalid IDs
         PaymobException exception = assertThrows(PaymobException.class, () -> {
             client.transactions().voidTransaction(request);
         });
@@ -55,7 +56,6 @@ class TransactionServiceIntegrationTest {
                 .amountCents(100)
                 .build();
 
-        // Capture returns 404 for invalid IDs
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             client.transactions().captureTransaction(request);
         });

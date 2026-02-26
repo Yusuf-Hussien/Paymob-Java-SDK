@@ -1,9 +1,13 @@
-package com.paymob.sdk.webhook;
+package com.paymob.sdk.integration.webhook;
 
+import com.paymob.sdk.webhook.WebhookEvent;
+import com.paymob.sdk.webhook.WebhookEventType;
+import com.paymob.sdk.webhook.WebhookValidator;
 import com.paymob.sdk.webhook.signature.CardTokenSignatureCalculator;
 import com.paymob.sdk.webhook.signature.TransactionSignatureCalculator;
 import com.paymob.sdk.services.subscription.SubscriptionResponse;
 import com.paymob.sdk.services.transaction.TransactionResponse;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -13,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * High-fidelity integration tests for Webhook validation and parsing
  * using real-world payloads provided by the user.
  */
-class WebhookIntegrationTest {
+@Tag("integration")
+class WebhookIT {
 
     private WebhookValidator validator;
     private static final String HMAC_SECRET = "04DC1A9490B8CC2094C011FC055ADCDB";
@@ -21,8 +26,6 @@ class WebhookIntegrationTest {
     @Test
     @DisplayName("Should validate real Transaction webhook")
     void shouldValidateRealTransactionWebhook() throws Exception {
-        // EXACT payload from payload.md (trimmed for Java string readability but
-        // preserving structure)
         String payload = "{\n" +
                 "  \"type\": \"TRANSACTION\",\n" +
                 "  \"obj\": {\n" +
@@ -96,7 +99,6 @@ class WebhookIntegrationTest {
                 "  }\n" +
                 "}";
 
-        // Verification of concatenation logic regardless of HMAC match
         CardTokenSignatureCalculator calculator = new CardTokenSignatureCalculator();
         java.lang.reflect.Method method = CardTokenSignatureCalculator.class
                 .getDeclaredMethod("buildConcatenatedString", String.class);
@@ -105,7 +107,6 @@ class WebhookIntegrationTest {
         String expectedConcatenation = "MasterCard2024-11-13T12:32:23.859982test@test.com8555026xxxx-xxxx-xxxx-2346246628264064419e98aceb96f5a370ddf46460db9d555f88bf12448f80e1839b39f78ab";
         assertEquals(expectedConcatenation, actualConcatenation);
 
-        // Verify parsing still works
         WebhookEvent event = new com.paymob.sdk.webhook.parser.CardTokenWebhookEventParser().parse(payload);
         assertNotNull(event);
         assertEquals(WebhookEventType.CARD_TOKEN, event.getType());
