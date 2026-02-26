@@ -64,20 +64,26 @@ public class PaymobExample {
          * client.savedCards().processMitPayment(mitRequest);
          * 
          * // 5. Create subscription plan
-         * PlanRequest planRequest = new PlanRequest("Monthly Plan",
-         * BillingCycle.MONTHLY, 5000);
-         * planRequest.setDescription("Monthly subscription plan");
-         * planRequest.setRetrialCount(3);
-         * SubscriptionResponse planResponse =
-         * client.subscriptions().createPlan(planRequest);
+         * SubscriptionPlanRequest planRequest = SubscriptionPlanRequest.builder()
+         * .name("Monthly Plan")
+         * .frequency(30)
+         * .amountCents(5000)
+         * .planType("recurring")
+         * .build();
          * 
-         * // 6. Create customer subscription
-         * SubscriptionRequest subRequest = new
-         * SubscriptionRequest(planResponse.getPlanId(), "customer@example.com",
-         * "+201234567890");
-         * subRequest.setCardToken("card_token_123");
-         * SubscriptionResponse subResponse =
-         * client.subscriptions().createSubscription(subRequest);
+         * SubscriptionPlanResponse planResponse =
+         * client.subscriptionPlans().create(planRequest);
+         * 
+         * // 6. Create customer subscription (Enrollment)
+         * // Enrollment is usually done via Intention API
+         * IntentionRequest subRequest = IntentionRequest.builder()
+         * .amountCents(5000)
+         * .currency(Currency.EGP)
+         * .billingData(billingData)
+         * .subscriptionPlanId(planResponse.getId())
+         * .build();
+         * 
+         * IntentionResponse subResponse = client.subscriptions().subscribe(subRequest);
          * 
          * // 7. Transaction operations
          * RefundRequest refundRequest = new RefundRequest(123456789L, 5000);

@@ -8,22 +8,39 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 public class SubscriptionListRequest {
     private Long transaction;
 
-    @JsonAlias({"plan_id", "planId"})
+    @JsonAlias({ "plan_id", "planId" })
     private Long planId;
 
     private String state;
 
-    @JsonAlias({"starts_at", "startsAt"})
+    @JsonAlias({ "starts_at", "startsAt" })
     private String startsAt;
 
-    @JsonAlias({"next_billing", "nextBilling"})
+    @JsonAlias({ "next_billing", "nextBilling" })
     private String nextBilling;
 
-    @JsonAlias({"reminder_date", "reminderDate"})
+    @JsonAlias({ "reminder_date", "reminderDate" })
     private String reminderDate;
 
-    @JsonAlias({"ends_at", "endsAt"})
+    @JsonAlias({ "ends_at", "endsAt" })
     private String endsAt;
+
+    public SubscriptionListRequest() {
+    }
+
+    private SubscriptionListRequest(Builder builder) {
+        this.transaction = builder.transaction;
+        this.planId = builder.planId;
+        this.state = builder.state;
+        this.startsAt = builder.startsAt;
+        this.nextBilling = builder.nextBilling;
+        this.reminderDate = builder.reminderDate;
+        this.endsAt = builder.endsAt;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public Long getTransaction() {
         return transaction;
@@ -79,5 +96,54 @@ public class SubscriptionListRequest {
 
     public void setEndsAt(String endsAt) {
         this.endsAt = endsAt;
+    }
+
+    public static class Builder {
+        private Long transaction;
+        private Long planId;
+        private String state;
+        private String startsAt;
+        private String nextBilling;
+        private String reminderDate;
+        private String endsAt;
+
+        public Builder transaction(Long transaction) {
+            this.transaction = transaction;
+            return this;
+        }
+
+        public Builder planId(Long planId) {
+            this.planId = planId;
+            return this;
+        }
+
+        public Builder state(String state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder startsAt(String startsAt) {
+            this.startsAt = startsAt;
+            return this;
+        }
+
+        public Builder nextBilling(String nextBilling) {
+            this.nextBilling = nextBilling;
+            return this;
+        }
+
+        public Builder reminderDate(String reminderDate) {
+            this.reminderDate = reminderDate;
+            return this;
+        }
+
+        public Builder endsAt(String endsAt) {
+            this.endsAt = endsAt;
+            return this;
+        }
+
+        public SubscriptionListRequest build() {
+            return new SubscriptionListRequest(this);
+        }
     }
 }

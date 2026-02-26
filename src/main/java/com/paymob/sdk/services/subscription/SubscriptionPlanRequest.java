@@ -1,11 +1,13 @@
 package com.paymob.sdk.services.subscription;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Request for creating subscription plans.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SubscriptionPlanRequest {
 
     @JsonProperty("frequency")
@@ -15,39 +17,60 @@ public class SubscriptionPlanRequest {
     private String name;
 
     @JsonProperty("reminder_days")
-    @JsonAlias({"reminderDays"})
+    @JsonAlias({ "reminderDays" })
     private int reminderDays;
 
     @JsonProperty("retrial_days")
-    @JsonAlias({"retrialDays"})
+    @JsonAlias({ "retrialDays" })
     private int retrialDays;
 
     @JsonProperty("plan_type")
-    @JsonAlias({"planType"})
+    @JsonAlias({ "planType" })
     private String planType;
 
     @JsonProperty("number_of_deductions")
-    @JsonAlias({"numberOfDeductions"})
-    private Integer numberOfDeductions;
+    @JsonAlias({ "numberOfDeductions" })
+    private Integer numberOf_deductions;
 
     @JsonProperty("amount_cents")
-    @JsonAlias({"amountCents"})
+    @JsonAlias({ "amountCents" })
     private int amountCents;
 
     @JsonProperty("use_transaction_amount")
-    @JsonAlias({"useTransactionAmount"})
+    @JsonAlias({ "useTransactionAmount" })
     private boolean useTransactionAmount;
 
     @JsonProperty("is_active")
-    @JsonAlias({"isActive"})
+    @JsonAlias({ "isActive" })
     private Boolean isActive;
 
     @JsonProperty("integration")
     private int integration;
 
     @JsonProperty("webhook_url")
-    @JsonAlias({"webhookUrl"})
+    @JsonAlias({ "webhookUrl" })
     private String webhookUrl;
+
+    public SubscriptionPlanRequest() {
+    }
+
+    private SubscriptionPlanRequest(Builder builder) {
+        this.frequency = builder.frequency;
+        this.name = builder.name;
+        this.reminderDays = builder.reminderDays;
+        this.retrialDays = builder.retrialDays;
+        this.planType = builder.planType;
+        this.numberOf_deductions = builder.numberOfDeductions;
+        this.amountCents = builder.amountCents;
+        this.useTransactionAmount = builder.useTransactionAmount;
+        this.isActive = builder.isActive;
+        this.integration = builder.integration;
+        this.webhookUrl = builder.webhookUrl;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public int getFrequency() {
         return frequency;
@@ -90,11 +113,11 @@ public class SubscriptionPlanRequest {
     }
 
     public Integer getNumberOfDeductions() {
-        return numberOfDeductions;
+        return numberOf_deductions;
     }
 
     public void setNumberOfDeductions(Integer numberOfDeductions) {
-        this.numberOfDeductions = numberOfDeductions;
+        this.numberOf_deductions = numberOfDeductions;
     }
 
     public int getAmountCents() {
@@ -135,5 +158,90 @@ public class SubscriptionPlanRequest {
 
     public void setWebhookUrl(String webhookUrl) {
         this.webhookUrl = webhookUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "SubscriptionPlanRequest{" +
+                "frequency=" + frequency +
+                ", name='" + name + '\'' +
+                ", amountCents=" + amountCents +
+                ", isActive=" + isActive +
+                ", integration=" + integration +
+                ", planType='" + planType + '\'' +
+                '}';
+    }
+
+    public static class Builder {
+        private int frequency;
+        private String name;
+        private int reminderDays;
+        private int retrialDays;
+        private String planType;
+        private Integer numberOfDeductions;
+        private int amountCents;
+        private boolean useTransactionAmount;
+        private Boolean isActive = true;
+        private int integration;
+        private String webhookUrl;
+
+        public Builder frequency(int frequency) {
+            this.frequency = frequency;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder reminderDays(int reminderDays) {
+            this.reminderDays = reminderDays;
+            return this;
+        }
+
+        public Builder retrialDays(int retrialDays) {
+            this.retrialDays = retrialDays;
+            return this;
+        }
+
+        public Builder planType(String planType) {
+            this.planType = planType;
+            return this;
+        }
+
+        public Builder numberOfDeductions(Integer numberOfDeductions) {
+            this.numberOfDeductions = numberOfDeductions;
+            return this;
+        }
+
+        public Builder amountCents(int amountCents) {
+            this.amountCents = amountCents;
+            return this;
+        }
+
+        public Builder useTransactionAmount(boolean useTransactionAmount) {
+            this.useTransactionAmount = useTransactionAmount;
+            return this;
+        }
+
+        public Builder isActive(Boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
+        public Builder integration(int integration) {
+            this.integration = integration;
+            return this;
+        }
+
+        public Builder webhookUrl(String webhookUrl) {
+            this.webhookUrl = webhookUrl;
+            return this;
+        }
+
+        public SubscriptionPlanRequest build() {
+            return new SubscriptionPlanRequest(this);
+        }
     }
 }
