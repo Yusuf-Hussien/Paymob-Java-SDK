@@ -1,0 +1,48 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+
+jobs:
+
+  # ─────────────────────────────────────────────
+  # Job 1: Run integration tests against live Paymob API
+  # Requires sandbox credentials stored in GitHub secrets.
+  #
+  # ⚠️  Never runs on pull_request — secrets are not
+  #     available to forks and tests hit the real API.
+  # ─────────────────────────────────────────────
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    environment: integration
+    env:
+      PAYMOB_SECRET_KEY: ${{ secrets.PAYMOB_SECRET_KEY }}
+      PAYMOB_API_KEY: ${{ secrets.PAYMOB_API_KEY }}
+      PAYMOB_PUBLIC_KEY: ${{ secrets.PAYMOB_PUBLIC_KEY }}
+      PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
+      PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
+      PAYMOB_REGION: ${{ vars.PAYMOB_REGION }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run integration tests
+        run: mvn verify -P integration-test --no-transfer-progress
+
+      - name: Upload integration test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-report
+          path: target/failsafe-reports/
+          retention-days: 7
