@@ -7,7 +7,8 @@ import okhttp3.Response;
 import java.io.IOException;
 
 /**
- * Handler for processing HTTP responses and mapping to appropriate objects or exceptions.
+ * Handler for processing HTTP responses and mapping to appropriate objects or
+ * exceptions.
  * Centralizes response parsing and error handling logic.
  */
 public class ResponseHandler {
@@ -23,11 +24,11 @@ public class ResponseHandler {
      */
     public <T> T handleSuccess(Response response, Class<T> responseClass) throws IOException {
         String responseBody = response.body() != null ? response.body().string() : "";
-        
+
         if (responseClass == String.class) {
             return (T) responseBody;
         }
-        
+
         return objectMapper.readValue(responseBody, responseClass);
     }
 
@@ -59,9 +60,9 @@ public class ResponseHandler {
      * Checks if response indicates a timeout.
      */
     public boolean isTimeout(Response response) {
-        return response.code() == 408 || 
-               response.code() == 429 || 
-               response.message().toLowerCase().contains("timeout");
+        return response.code() == 408 ||
+                response.code() == 429 ||
+                response.message().toLowerCase().contains("timeout");
     }
 
     /**

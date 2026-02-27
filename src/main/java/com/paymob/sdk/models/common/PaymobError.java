@@ -11,14 +11,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PaymobError {
     @JsonProperty("detail")
     private String detail;
-    
+
     @JsonProperty("message")
     private String message;
-    
+
     @JsonProperty("code")
     private String code;
 
-    public PaymobError() {}
+    public PaymobError() {
+    }
 
     public PaymobError(String detail, String message, String code) {
         this.detail = detail;
@@ -28,6 +29,7 @@ public class PaymobError {
 
     /**
      * Gets the detailed error description.
+     * 
      * @return The error detail
      */
     public String getDetail() {
@@ -36,6 +38,7 @@ public class PaymobError {
 
     /**
      * Gets the error message.
+     * 
      * @return The error message
      */
     public String getMessage() {
@@ -44,6 +47,7 @@ public class PaymobError {
 
     /**
      * Gets the error code.
+     * 
      * @return The error code
      */
     public String getCode() {

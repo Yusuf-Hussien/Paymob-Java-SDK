@@ -29,7 +29,7 @@ public class RetryInterceptor implements Interceptor {
                 }
 
                 response = chain.proceed(request);
-                
+
                 // If successful or client error (4xx), don't retry
                 if (response.isSuccessful() || (response.code() >= 400 && response.code() < 500)) {
                     return response;
@@ -45,7 +45,7 @@ public class RetryInterceptor implements Interceptor {
                 throw new IOException("Request interrupted", e);
             } catch (IOException e) {
                 lastException = e;
-                
+
                 // Don't retry on certain exceptions
                 if (!shouldRetry(e)) {
                     throw e;
@@ -67,10 +67,10 @@ public class RetryInterceptor implements Interceptor {
         if (message == null) {
             return true;
         }
-        
-        return !message.contains("401") && 
-               !message.contains("403") && 
-               !message.contains("SSL") && 
-               !message.contains("certificate");
+
+        return !message.contains("401") &&
+                !message.contains("403") &&
+                !message.contains("SSL") &&
+                !message.contains("certificate");
     }
 }

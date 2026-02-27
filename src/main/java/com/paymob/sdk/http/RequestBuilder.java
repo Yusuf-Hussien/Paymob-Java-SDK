@@ -77,7 +77,7 @@ public class RequestBuilder {
         if (requestBody != null && !method.equals("GET") && !method.equals("DELETE")) {
             String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(requestBody);
             RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
-            
+
             switch (method) {
                 case "POST":
                     requestBuilder.post(body);

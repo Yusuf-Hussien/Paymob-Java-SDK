@@ -1,5 +1,6 @@
 package com.paymob.sdk.core.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -171,6 +172,7 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
      * Request DTO for token endpoint.
      */
     static class TokenRequest {
+        @JsonProperty("api_key")
         public String api_key;
 
         public TokenRequest(String apiKey) {
