@@ -4,7 +4,6 @@ import com.paymob.sdk.core.PaymobClient;
 import com.paymob.sdk.services.subscription.plan.SubscriptionPlanRequest;
 import com.paymob.sdk.services.subscription.plan.SubscriptionPlanResponse;
 import com.paymob.sdk.services.subscription.plan.SubscriptionPlanUpdateRequest;
-import com.paymob.sdk.services.subscription.plan.SubscriptionPlansPage;
 import com.paymob.sdk.testutil.IntegrationTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -38,9 +37,9 @@ class SubscriptionPlanServiceIT {
         assertEquals(planName, createResponse.getName());
         long planId = createResponse.getId();
 
-        SubscriptionPlansPage page = client.subscriptionPlans().list();
-        assertNotNull(page);
-        assertTrue(page.getResults().stream().anyMatch(p -> p.getId() == planId));
+        SubscriptionPlanResponse retrievedPlan = client.subscriptionPlans().retrieve(planId);
+        assertNotNull(retrievedPlan);
+        assertEquals(planId, retrievedPlan.getId());
 
         SubscriptionPlanUpdateRequest updateRequest = SubscriptionPlanUpdateRequest.builder()
                 .amountCents(2000)

@@ -41,6 +41,18 @@ public class SubscriptionPlanService {
     }
 
     /**
+     * Retrieves a single subscription plan by ID.
+     * 
+     * @param planId The ID of the plan to retrieve
+     * @return Plan details
+     */
+    public SubscriptionPlanResponse retrieve(long planId) {
+        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
+        return httpClient.get("/api/acceptance/subscription-plans/" + planId, SubscriptionPlanResponse.class,
+                authStrategy);
+    }
+
+    /**
      * Updates an existing subscription plan.
      * Only certain fields are updatable.
      * 
