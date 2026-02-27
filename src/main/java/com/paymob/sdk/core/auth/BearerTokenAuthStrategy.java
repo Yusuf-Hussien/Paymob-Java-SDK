@@ -106,6 +106,7 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
 
     /**
      * Fetches a new bearer token from Paymob API.
+     * 
      * @return CompletableFuture that completes with the token
      */
     public CompletableFuture<String> fetchToken() {
@@ -120,43 +121,46 @@ public class BearerTokenAuthStrategy implements AuthStrategy {
 
     /**
      * Gets the cached token or fetches a new one if needed.
+     * 
      * @return The bearer token
      */
     public String getOrFetchToken() {
-        // Check cache first
-        String cachedToken;
         synchronized (lock) {
-            cachedToken = tokenCache.getIfPresent(apiKey);
+            // 1. Check current token
+            if (bearerToken != null && !isTokenExpired()) {
+                return bearerToken;
+            }
+
+            // 2. Check cache (in case another thread just updated it)
+            String cachedToken = tokenCache.getIfPresent(apiKey);
             if (cachedToken != null) {
                 bearerToken = cachedToken;
                 tokenExpiry = Instant.now().plusSeconds(3600);
                 return cachedToken;
             }
 
-            // Check if current token is still valid
-            if (bearerToken != null && !isTokenExpired()) {
-                return bearerToken;
-            }
+            // 3. Fetch new token while holding the lock to prevent concurrent logins
+            return fetchTokenSyncUnderLock();
+        }
+    }
+
+    private String fetchTokenSyncUnderLock() {
+        TokenResponse tokenResponse = login(new TokenRequest(apiKey));
+        if (tokenResponse == null || tokenResponse.token == null || tokenResponse.token.isBlank()) {
+            throw new RuntimeException("Token endpoint returned empty token");
         }
 
-        // Fetch a new token without holding the lock (avoids deadlocks)
-        return fetchTokenSync();
+        String token = tokenResponse.token;
+        this.bearerToken = token;
+        this.tokenExpiry = Instant.now().plusSeconds(3600);
+        tokenCache.put(apiKey, token);
+
+        return token;
     }
 
     @Override
     public String getAuthorizationHeader() {
-        String token;
-        boolean needsRefresh;
-
-        synchronized (lock) {
-            token = bearerToken;
-            needsRefresh = (token == null) || isTokenExpired();
-        }
-
-        if (needsRefresh) {
-            token = getOrFetchToken();
-        }
-
+        String token = getOrFetchToken();
         if (token == null || token.isBlank()) {
             return null;
         }
