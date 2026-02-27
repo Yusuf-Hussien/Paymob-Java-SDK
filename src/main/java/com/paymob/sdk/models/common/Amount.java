@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Represents a monetary amount with currency.
- * All amounts are stored in the smallest currency unit (cents for EGP, fils for KSA, etc.).
+ * All amounts are stored in the smallest currency unit (cents for EGP, fils for
+ * KSA, etc.).
  */
 public class Amount {
     private final int value;
@@ -21,6 +22,7 @@ public class Amount {
 
     /**
      * Gets the amount value in smallest currency unit.
+     * 
      * @return The numeric amount value
      */
     public int getValue() {
@@ -29,6 +31,7 @@ public class Amount {
 
     /**
      * Gets the currency.
+     * 
      * @return The currency
      */
     public Currency getCurrency() {
@@ -37,9 +40,10 @@ public class Amount {
 
     /**
      * Gets the amount as a decimal string (e.g., "100.50" for 1050 cents).
+     * 
      * @return The formatted amount string
      */
     public String toDecimalString() {
-        return String.format("%.2f", value / 100.0);
+        return String.format(java.util.Locale.US, "%.2f", value / 100.0);
     }
 }
