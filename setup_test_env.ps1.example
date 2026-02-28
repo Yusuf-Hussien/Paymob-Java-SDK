@@ -12,4 +12,4 @@ Write-Host "Integration test environment variables set for the current session."
 Write-Host "You can now run: mvn test -Dtest=IntentionServiceIntegrationTest" -ForegroundColor Cyan
 
 #Then Run The Following Command at once: 
-#powershell -Command ".\setup_test_env.ps1; mvn test"
+#powershell -Command ".\setup_test_env.ps1; mvn verify"

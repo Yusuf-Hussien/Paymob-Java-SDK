@@ -1,404 +1,237 @@
 # Paymob Java SDK
 
-**Community-maintained Java SDK for Paymob Payment Gateway.**
-**This is NOT the official SDK.**
+**Community-maintained Java SDK for the [Paymob](https://paymob.com) Payment Gateway.**
+**This is NOT an official Paymob product.**
 
-Supports Egypt, KSA, UAE, and Oman.
+Supports **Egypt**, **KSA**, **UAE**, and **Oman** regions.
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.yusuf-hussien/paymob-java-sdk)](https://search.maven.org/artifact/io.github.yusuf-hussien/paymob-java-sdk)
-[![CI](https://github.com/Yusuf-Hussien/Paymob-Java-SDK/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/Yusuf-Hussien/Paymob-Java-SDK/actions)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.yusuf-hussien/paymob-java-sdk)](https://central.sonatype.com/artifact/io.github.yusuf-hussien/paymob-java-sdk)
+[![CI](https://github.com/Yusuf-Hussien/Paymob-Java-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Yusuf-Hussien/Paymob-Java-SDK/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://openjdk.org/)
 
+> **Disclaimer:** This is a community-maintained SDK and is **NOT** affiliated with or endorsed by Paymob.
+> For official Paymob documentation and support, visit [docs.paymob.com](https://docs.paymob.com).
+
+---
+
 ## 📋 Table of Contents
 
-- [Quick Start (5 minutes)](#quick-start-5-minutes)
-- [Services](#services)
-- [Error Handling](#error-handling)
-- [Configuration](#configuration)
-- [Multi-Region](#multi-region)
-- [Logging](#logging)
-- [Metrics](#metrics)
-- [Requirements](#requirements)
-- [Contributing](#contributing)
-- [License](#license)
+- [Quick Start](#-quick-start)
+- [Services](#-services)
+- [Error Handling](#-error-handling)
+- [Configuration](#%EF%B8%8F-configuration)
+- [Requirements](#-requirements)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-## 📚 Documentation
+---
 
-- **[API Reference](#services)** - Complete service documentation
-- **[Integration Flows](docs/flow_diagrams.md)** - Visual diagrams and step-by-step guides
-- **[Examples](examples/)** - Ready-to-use code examples
-- **[Production Guide](Paymob-Java-SDK-Production-Guide.md)** - Deployment and best practices
-- **[Official Paymob API Docs](https://docs.paymob.com)** - Official Paymob documentation
+## 🚀 Quick Start
 
-## ⚠️ Important Notice
-
-This is a **community-maintained SDK** and is **NOT the official Paymob SDK**. 
-
-For the official SDK and support:
-- **Official Paymob Documentation**: https://docs.paymob.com
-- **Paymob Developer Support**: Contact through your Paymob Dashboard
-- **Official SDKs**: Check Paymob's official repositories for supported languages
-
-This community SDK provides:
-- ✅ Full API coverage for all Paymob services
-- ✅ Active maintenance and community support
-- ✅ Comprehensive examples and documentation
-- ✅ Production-ready with proper error handling
-- ✅ Open source with MIT license
-
-## Quick Start (5 minutes)
-
-### 1. Add Dependency
+### 1. Add the Dependency
 
 **Maven:**
+
 ```xml
 <dependency>
     <groupId>io.github.yusuf-hussien</groupId>
     <artifactId>paymob-java-sdk</artifactId>
-    <version>0.1.1</version>
+    <version>1.1.0</version><!--verify the lates version-->
 </dependency>
 ```
 
 **Gradle:**
+
 ```gradle
-implementation 'io.github.yusuf-hussien:paymob-java-sdk:0.1.1'
+implementation 'io.github.yusuf-hussien:paymob-java-sdk:1.1.0'
 ```
 
-### 2. Create Your First Payment
+### 2. Initialize the Client
 
 ```java
-import com.paymob.sdk.PaymobClient;
-import com.paymob.sdk.PaymobConfig;
-import com.paymob.sdk.models.Region;
-import com.paymob.sdk.models.intention.*;
+import com.paymob.sdk.core.PaymobClient;
+import com.paymob.sdk.core.PaymobConfig;
+import com.paymob.sdk.core.PaymobRegion;
 
-// Initialize SDK
 PaymobConfig config = PaymobConfig.builder()
-    .apiKey("your_api_key")
     .secretKey("your_secret_key")
     .publicKey("your_public_key")
-    .region(Region.UAE)
+    .hmacSecret("your_hmac_secret")
+    .apiKey("your_api_key")         
+    .region(PaymobRegion.EGYPT)
     .build();
 
 PaymobClient client = new PaymobClient(config);
+```
 
-// Create payment intention
-IntentionRequest request = IntentionRequest.builder()
-    .amount(1000) // 10.00 in cents
-    .currency("AED")
-    .integrationIds(List.of(456789))
-    .billingData(BillingData.builder()
-        .firstName("John")
-        .lastName("Doe")
-        .email("john@example.com")
-        .phoneNumber("+971500000000")
-        .build())
+See [Configuration](#%EF%B8%8F-configuration) for all available options.
+
+### 3. Create a Payment
+
+```java
+import com.paymob.sdk.models.common.BillingData;
+import com.paymob.sdk.models.common.Item;
+import com.paymob.sdk.models.enums.Currency;
+import com.paymob.sdk.services.intention.IntentionRequest;
+import com.paymob.sdk.services.intention.IntentionResponse;
+import java.util.List;
+
+Item item = Item.builder()
+    .name("Order #123")
+    .amount(1000)   // 10.00 EGP in cents
+    .quantity(1)
     .build();
 
-IntentionResponse response = client.intentions().create(request);
-String paymentUrl = response.getPaymentUrl();
+BillingData billing = BillingData.builder()
+    .firstName("Yusuf")
+    .lastName("Hussien")
+    .email("yusuf@example.com")
+    .phoneNumber("+201000000000")
+    .country("EGY")
+    .city("Cairo")
+    .street("123 Main St")
+    .build();
+
+IntentionRequest request = IntentionRequest.builder()
+    .amount(1000)                         // Must equal sum of item amounts
+    .currency(Currency.EGP)
+    .paymentMethods(List.of(123456))      // Your Integration ID(s)
+    .items(List.of(item))
+    .billingData(billing)
+    .specialReference("ORDER-12345")
+    .build();
+
+IntentionResponse response = client.intentions().createIntention(request);
+
+// Redirect the customer to this URL
+String checkoutUrl = client.intentions().getUnifiedCheckoutUrl(response);
 ```
 
-### 3. Handle Webhook
+---
 
-Paymob supports two types of webhooks:
+## 📦 Services
 
-#### 🔄 Server Callback (POST) - Recommended
-Server-to-server notifications for transaction updates:
+| Service | Accessed via | Description |
+|---------|-------------|-------------|
+| Payment Intention | `client.intentions()` | Create checkout sessions for cards, wallets, kiosk, and more |
+| Saved Cards | `client.savedCards()` | Charge tokenized cards (CIT with CVV, or MIT without) |
+| Subscription Plans | `client.subscriptionPlans()` | Create and manage recurring billing plans |
+| Subscriptions | `client.subscriptions()` | Enroll customers, manage lifecycle, handle card changes |
+| Transaction Management | `client.transactions()` | Refund, void, and capture transactions |
+| Transaction Inquiry | `client.inquiry()` | Look up transactions by order reference, order ID, or transaction ID |
+| Quick Links | `client.quickLinks()` | Generate shareable payment links |
+| Webhooks | `new WebhookValidator(hmacSecret)` | Validate HMAC signatures and parse all event types |
 
-```java
-import com.paymob.sdk.webhook.WebhookValidator;
-import com.paymob.sdk.webhook.WebhookEvent;
+For method signatures, request/response fields, and code examples, see the [API Reference](docs/api/) or the [Guides](docs/guides/).
 
-// Initialize webhook validator with your HMAC secret
-WebhookValidator validator = new WebhookValidator("your_hmac_secret");
+---
 
-@PostMapping("/webhook/paymob")
-public ResponseEntity<String> handleWebhook(@RequestBody String rawBody, 
-                                          @RequestParam("hmac") String hmac) {
-    try {
-        WebhookEvent event = validator.validateAndParse(rawBody, hmac);
-        
-        if (event == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid HMAC");
-        }
-        
-        // Process event based on type
-        switch (event.getEventType()) {
-            case TRANSACTION_PROCESSED:
-                // Handle successful payment
-                break;
-            case TRANSACTION_FAILED:
-                // Handle failed payment
-                break;
-            // ... handle other event types
-        }
-        
-        return ResponseEntity.ok("success");
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
-    }
-}
-```
+## ⚠️ Error Handling
 
-#### 👤 User Callback (GET) - Optional
-User redirect after payment completion:
+All exceptions are unchecked and extend `PaymobException`, which carries `httpStatus` and `errorBody` for inspecting the raw Paymob error response.
 
-```java
-@GetMapping("/callback")
-public String handleCallback(@RequestParam Map<String, String> queryParams,
-                           @RequestParam("hmac") String hmac) {
-    try {
-        if (!validator.validateCallbackSignature(queryParams, hmac)) {
-            return "Security validation failed";
-        }
-        
-        boolean isSuccess = Boolean.parseBoolean(queryParams.getOrDefault("success", "false"));
-        String merchantOrderId = queryParams.get("merchant_order_id");
-        
-        if (isSuccess) {
-            // Show success page
-            return generateSuccessHtml(merchantOrderId);
-        } else {
-            // Show failure page
-            return generateFailureHtml(merchantOrderId);
-        }
-    } catch (Exception e) {
-        return "Error processing callback";
-    }
-}
-```
-
-**Important Notes:**
-- Paymob sends HMAC as **query parameter** named `hmac` (not header)
-- HMAC is **hex-encoded** (not Base64)
-- Fields are concatenated in **specific order** for validation
-- Use `MessageDigest.isEqual()` for secure comparison
-- **Server callbacks** are recommended for reliable updates
-- **User callbacks** are for user-facing pages
-
-## Services
-
-### 💳 Payment Intention
-
-Create payment links for cards, wallets, and more:
-
-```java
-IntentionResponse response = client.intentions().create(request);
-String paymentUrl = response.getPaymentUrl();
-```
-
-### 💳 Saved Cards
-
-Charge customers using saved tokens:
-
-```java
-// Customer Initiated (with CVV)
-TokenizedPaymentResponse cit = client.savedCards().payWithCit(citRequest);
-
-// Merchant Initiated (no CVV)
-TokenizedPaymentResponse mit = client.savedCards().payWithMit(mitRequest);
-```
-
-### 🔄 Subscriptions
-
-Manage recurring billing:
-
-```java
-// Create subscription plan
-SubscriptionResponse plan = client.subscriptions().createPlan(planRequest);
-
-// Subscribe customer
-SubscriptionResponse subscription = client.subscriptions().subscribe(subRequest);
-
-// Manage lifecycle
-client.subscriptions().suspend(subscriptionId);
-client.subscriptions().resume(subscriptionId);
-client.subscriptions().cancel(subscriptionId);
-```
-
-### 🔀 Transaction Management
-
-Control payments after they're made:
-
-```java
-// Refund (full or partial)
-TransactionResponse refund = client.transactions().refund(
-    RefundRequest.builder().transactionId(txId).amountCents(1000).build());
-
-// Void same-day transaction
-TransactionResponse void = client.transactions().void_(
-    VoidRequest.builder().transactionId(txId).build());
-
-// Capture authorized funds
-TransactionResponse capture = client.transactions().capture(
-    CaptureRequest.builder().transactionId(txId).amountCents(1000).build());
-```
-
-### 🔍 Transaction Inquiry
-
-Look up transactions by different criteria:
-
-```java
-// By your order ID
-InquiryResponse byMerchantOrderId = client.inquiry().byMerchantOrderId("ORDER-123");
-
-// By Paymob order ID
-InquiryResponse byOrderId = client.inquiry().byOrderId(456789);
-
-// By transaction ID
-InquiryResponse byTransactionId = client.inquiry().byTransactionId(987654);
-```
-
-### 🔗 Quick Links
-
-Create shareable payment links:
-
-```java
-QuickLinkResponse link = client.quickLinks().create(
-    QuickLinkRequest.builder()
-        .amount(1000)
-        .currency("AED")
-        .title("Invoice #123")
-        .integrationId(456789)
-        .build());
-
-String shareableUrl = link.getUrl();
-```
-
-## Error Handling
-
-The SDK provides comprehensive error handling with specific exception types:
+| Exception | HTTP Status | Common Cause |
+|-----------|-------------|--------------|
+| `AuthenticationException` | 401 | Invalid credentials or region mismatch |
+| `ValidationException` | 406 | Missing or invalid request fields |
+| `ResourceNotFoundException` | 404 | Integration ID, transaction, or plan not found |
+| `PaymobServerException` | 5xx | Paymob server-side error — safe to retry |
+| `PaymobTimeoutException` | — | Network timeout |
 
 ```java
 try {
-    IntentionResponse response = client.intentions().create(request);
+    IntentionResponse response = client.intentions().createIntention(request);
 } catch (AuthenticationException e) {
-    // Invalid credentials - check API keys and region
-    System.err.println("Authentication failed: " + e.getMessage());
+    // Wrong secret key or wrong region configured
 } catch (ValidationException e) {
-    // Invalid request data - check amount, currency, billing data
-    System.err.println("Validation failed: " + e.getMessage());
+    log.error("Validation error: {}", e.getErrorBody());
 } catch (PaymobServerException e) {
-    // Paymob server error - implement retry logic
-    System.err.println("Server error: " + e.getMessage());
-} catch (PaymobTimeoutException e) {
-    // Network timeout - check connection and retry
-    System.err.println("Timeout: " + e.getMessage());
+    // Retry with backoff
 } catch (PaymobException e) {
-    // Generic Paymob error
-    System.err.println("Paymob error: " + e.getMessage());
+    // Catch-all
 }
 ```
 
-## Configuration
+---
 
-All builder options with types and defaults:
+## ⚙️ Configuration
 
-```java
-PaymobClient client = PaymobClient.builder()
-    .apiKey("your_api_key")                    // Required for subscriptions
-    .secretKey("your_secret_key")              // Required for most operations
-    .publicKey("your_public_key")              // Required for webhooks
-    .region(Region.UAE)                        // Required: EGYPT, KSA, UAE, OMAN
-    .connectTimeoutSeconds(10)                 // Optional: connection timeout (default: 10)
-    .readTimeoutSeconds(30)                     // Optional: read timeout (default: 30)
-    .hmacSecret("your_hmac_secret")            // Optional: webhook verification
-    .metricsRecorder(customMetricsRecorder)     // Optional: metrics collection
-    .build();
-```
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `secretKey` | ✅ Always | — | Secret key for API authentication |
+| `apiKey` | ✅ For subscriptions | — | Legacy API key for Bearer token auth |
+| `publicKey` | ✅ For checkout URL & webhooks | — | Public key |
+| `hmacSecret` | ✅ For webhook validation | — | HMAC secret for signature verification |
+| `region` | No | `EGYPT` | API region — `EGYPT`, `KSA`, `UAE`, `OMAN` |
+| `timeout` | No | `60s` | HTTP timeout in seconds |
+| `logLevel` | No | `NONE` | HTTP logging verbosity — `NONE`, `BASIC`, `HEADERS`, `BODY` |
 
-## Multi-Region
+**Regions:**
 
-Switch between Paymob regions:
+| Region | Base URL |
+|--------|----------|
+| `EGYPT` | `https://accept.paymob.com` |
+| `KSA` | `https://ksa.paymob.com` |
+| `UAE` | `https://uae.paymob.com` |
+| `OMAN` | `https://oman.paymob.com` |
 
-```java
-// Egypt
-PaymobClient client = PaymobClient.builder()
-    .region(Region.EGYPT)
-    .build();
+**Log levels** use SLF4J — bring your own backend (Logback, Log4j2, etc.). `BODY` logs full request and response bodies.
 
-// Saudi Arabia
-PaymobClient client = PaymobClient.builder()
-    .region(Region.KSA)
-    .build();
+---
 
-// UAE
-PaymobClient client = PaymobClient.builder()
-    .region(Region.UAE)
-    .build();
-
-// Oman
-PaymobClient client = PaymobClient.builder()
-    .region(Region.OMAN)
-    .build();
-```
-
-## Logging
-
-Enable/disable logging and control log levels:
-
-```java
-// Enable debug logging
-PaymobConfig config = PaymobConfig.builder()
-    .secretKey("sk_...")
-    .region(Region.UAE)
-    .debug(true)  // Enable debug logging
-    .build();
-```
-
-Or via properties:
-```properties
-paymob.debug=true
-logging.level.com.paymob=DEBUG
-```
-
-## Metrics
-
-Plug in Micrometer with example recorder:
-
-```java
-public class MicrometerPaymobRecorder implements PaymobMetricsRecorder {
-    private final MeterRegistry registry;
-
-    public MicrometerPaymobRecorder(MeterRegistry registry) {
-        this.registry = registry;
-    }
-
-    @Override
-    public void recordApiCall(String service, String operation, String region,
-                              int statusCode, long durationMs, boolean success) {
-        Timer.builder("paymob.api.call")
-            .tag("service", service)
-            .tag("operation", operation)
-            .tag("region", region)
-            .tag("status", String.valueOf(statusCode))
-            .tag("success", String.valueOf(success))
-            .register(registry)
-            .record(durationMs, TimeUnit.MILLISECONDS);
-    }
-
-    // Implement other methods...
-}
-
-// Configure with custom metrics
-PaymobClient client = PaymobClient.builder()
-    .metricsRecorder(new MicrometerPaymobRecorder(meterRegistry))
-    .build();
-```
-
-## Requirements
+## 📋 Requirements
 
 - Java 17+
-- No Spring required — plain Java
-- Maven 3.6+
-- A Paymob Merchant Account
+- Maven 3.6+ (for building from source)
+- A [Paymob merchant account](https://paymob.com)
+- No Spring dependency — works with any Java application
 
-## Contributing
+---
 
-See CONTRIBUTING.md
+## 📚 Documentation
 
-## License
+**Guides**
 
-MIT
+| Guide | Description |
+|-------|-------------|
+| [Payment Intention](docs/guides/payment-intention.md) | Core checkout flow — create an intention, redirect, handle webhook |
+| [Saved Cards](docs/guides/saved-cards.md) | CIT and MIT payments using tokenized cards |
+| [Quick Links](docs/guides/quick-links.md) | Create shareable payment links |
+| [Subscriptions](docs/guides/subscriptions.md) | Plan management and recurring billing lifecycle |
+| [Webhooks](docs/guides/webhooks.md) | HMAC verification, all event types, code examples |
+
+**API Reference**
+
+| Reference | Description |
+|-----------|-------------|
+| [Intention](docs/api/intention.md) | Create, update, retrieve intentions; generate checkout URLs |
+| [Transaction](docs/api/transaction.md) | Refund, void, capture |
+| [Transaction Inquiry](docs/api/transaction-inquiry.md) | Look up by merchant order ID, order ID, or transaction ID |
+| [Saved Cards](docs/api/saved-cards.md) | CIT and MIT request fields |
+| [Subscription Plans](docs/api/subscription-plans.md) | Plan CRUD, suspend, resume |
+| [Subscriptions](docs/api/subscriptions.md) | Enrollment, lifecycle, card management |
+| [Quick Links](docs/api/quick-links.md) | Create and cancel payment links |
+| [Webhooks](docs/api/webhooks.md) | WebhookValidator, WebhookEvent, all event types |
+
+**Other**
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/internals/architecture.md) | Layers, components, auth system, HTTP pipeline, design decisions |
+| [Changelog](CHANGELOG.md) | Version history |
+| [Paymob Official Docs](https://docs.paymob.com) | Official Paymob API reference |
+| [Paymob API Postman Collections](https://github.com/PaymobAccept/API-Postman-Collections) | Official Postman collections |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
