@@ -219,7 +219,7 @@ try {
 
 | Document | Description |
 |----------|-------------|
-| [Architecture](docs/internals/architecture.md) | Layers, components, auth system, HTTP pipeline, design decisions |
+| [System Design](docs/internals/system-design.md) | Layers, components, auth system, HTTP pipeline, design decisions |
 | [Changelog](CHANGELOG.md) | Version history |
 | [Paymob Official Docs](https://docs.paymob.com) | Official Paymob API reference |
 | [Paymob API Postman Collections](https://github.com/PaymobAccept/API-Postman-Collections) | Official Postman collections |

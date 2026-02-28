@@ -19,6 +19,7 @@ This document describes the complete system design of the Paymob Java SDK — it
 ---
 
 ## High-Level Architecture
+![Paymob Java SDK Architecture](../assets/Paymob-Java-SDK-Arch.png)
 
 ```mermaid
 graph TB

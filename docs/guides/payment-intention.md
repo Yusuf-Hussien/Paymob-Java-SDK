@@ -86,8 +86,8 @@ IntentionRequest request = IntentionRequest.builder()
     .paymentMethods(List.of(123456))        // Your Integration ID(s)
     .items(List.of(item))
     .billingData(billing)
-    // --- Optional Fields ---
     .specialReference("ORDER-" + orderId)  // Your internal reference (ID)
+    // --- Optional Fields ---
     .notificationUrl("https://yoursite.com/webhook/paymob")   // Optional override
     .redirectionUrl("https://yoursite.com/payment/result")    // Optional
     .acceptOrderId(987654321L)              // Link to an existing order
