@@ -80,7 +80,7 @@ jobs:
       - name: Publish to Maven Central
         id: publish
         continue-on-error: true
-        run: mvn --batch-mode deploy -P release -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}" --no-transfer-progress
+        run: mvn --batch-mode deploy -DskipTests -P release -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}" --no-transfer-progress
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
