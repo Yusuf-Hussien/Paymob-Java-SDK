@@ -51,7 +51,7 @@ public class IntentionService {
     public IntentionResponse retrieveIntention(String clientSecret) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
         String endpoint = "/v1/intention/element/" + config.getPublicKey() + "/" + clientSecret + "/";
-        return httpClient.get(endpoint, IntentionResponse.class, authStrategy);
+        return httpClient.get(endpoint, IntentionResponse.class, null);
     }
 
     /**

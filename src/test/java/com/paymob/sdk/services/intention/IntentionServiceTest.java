@@ -1,15 +1,22 @@
 package com.paymob.sdk.services.intention;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
 import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.http.HttpClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 class IntentionServiceTest {
 
@@ -57,14 +64,14 @@ class IntentionServiceTest {
 
     @Test
     void retrieveIntention_usesCorrectEndpointWithPublicKeyAndSecret() {
-        when(httpClient.get(anyString(), eq(IntentionResponse.class), eq(authStrategy)))
+        when(httpClient.get(anyString(), eq(IntentionResponse.class), isNull()))
                 .thenReturn(new IntentionResponse());
 
         service.retrieveIntention("cs_test_456");
 
         verify(httpClient).setBaseUrl(PaymobRegion.EGYPT.getBaseUrl());
         verify(httpClient).get(eq("/v1/intention/element/pk_test/cs_test_456/"),
-                eq(IntentionResponse.class), same(authStrategy));
+            eq(IntentionResponse.class), isNull());
     }
 
     @Test
