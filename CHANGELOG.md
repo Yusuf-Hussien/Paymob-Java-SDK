@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI badge in README now points to `ci.yml` instead of the removed `maven-publish.yml`.
 - Version number inconsistency between Maven and Gradle snippets in README.
 
+## [0.1.1] - 2025-01-22
+
+### Fixed
+- Corrected Maven Central artifact coordinates in README dependency snippets.
+- Minor documentation cleanup and typo fixes from initial release feedback.
+
 ## [0.1.0] - 2025-01-15
 
 ### Added

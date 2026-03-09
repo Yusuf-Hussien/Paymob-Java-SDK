@@ -92,21 +92,61 @@ SubscriptionTransactionsPage history = client.subscriptions().listTransactions(s
 ### `listCards(long subscriptionId) → List<SubscriptionCardResponse>`
 ### `changePrimaryCard(long subscriptionId, long cardId) → SubscriptionResponse`
 ### `deleteCard(long subscriptionId, long cardId) → SubscriptionResponse`
+### `registerWebhook(long subscriptionId, String webhookUrl) → SubscriptionResponse`
 
 ```java
 List<SubscriptionCardResponse> cards = client.subscriptions().listCards(subscriptionId);
 client.subscriptions().changePrimaryCard(subscriptionId, cards.get(1).getId());
 client.subscriptions().deleteCard(subscriptionId, cardId);
+client.subscriptions().registerWebhook(subscriptionId, "https://merchant.example/subscription-webhook");
 ```
 
 ---
+
+## SubscriptionResponse Fields
+
+Returned by `get`, `update`, `suspend`, `resume`, `cancel`, `changePrimaryCard`, `deleteCard`, `registerWebhook`, and subscription webhook events.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `long` | Subscription ID |
+| `state` | `String` | Current state: `"active"`, `"suspended"`, `"canceled"` |
+| `amountCents` | `int` | Current recurring charge amount in cents |
+| `frequency` | `int` | Billing interval in days |
+| `planId` | `long` | ID of the associated plan |
+| `startsAt` | `String` | ISO 8601 subscription start date |
+| `nextBilling` | `String` | ISO 8601 date of next scheduled billing |
+
+## SubscriptionUpdateRequest Fields
+
+Only the fields you include are updated; omitted fields are left unchanged.
+
+| Field | Type | Required | Description |
+|-------|------|----------|--------------|
+| `amountCents` | `Integer` | No | Override the recurring charge amount for this subscription in cents |
+| `endsAt` | `String` | No | ISO 8601 date to end the subscription (extends or shortens the billing period) |
+
+## SubscriptionCardResponse Fields
+
+Returned by `listCards`.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `long` | Card record ID (used for `changePrimaryCard` and `deleteCard`) |
+| `token` | `String` | Saved card token |
+| `maskedPan` | `String` | Masked card number (e.g. `"XXXX-XXXX-XXXX-1234"`) |
+| `isPrimary` | `boolean` | Whether this is the active billing card |
+| `failedAttempts` | `int` | Number of consecutive failed billing attempts |
+| `createdAt` | `String` | ISO 8601 timestamp when the card was saved |
 
 ## SubscriptionListRequest Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `transaction` | `Long` | Filter by related transaction ID |
 | `state` | `String` | Filter by state: `"active"`, `"suspended"`, `"canceled"` |
 | `planId` | `Long` | Filter by plan ID |
 | `startsAt` | `String` | Filter by start date |
 | `nextBilling` | `String` | Filter by next billing date |
+| `reminderDate` | `String` | Filter by reminder date |
 | `endsAt` | `String` | Filter by end date |

@@ -8,6 +8,8 @@ This guide walks through integrating Paymob's Unified Checkout into a Java appli
 - Your **Secret Key**, **Public Key**, and **HMAC Secret** from the Paymob dashboard
 - At least one **Integration ID** (card, wallet, kiosk, etc.) configured in your region
 
+If you have not collected these values yet, see [Getting Paymob Credentials](getting-paymob-credentials.md).
+
 ---
 
 ## 1. Add the SDK
@@ -17,13 +19,13 @@ This guide walks through integrating Paymob's Unified Checkout into a Java appli
 <dependency>
     <groupId>io.github.yusuf-hussien</groupId>
     <artifactId>paymob-java-sdk</artifactId>
-    <version>0.1.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 **Gradle:**
 ```gradle
-implementation 'io.github.yusuf-hussien:paymob-java-sdk:0.1.1'
+implementation 'io.github.yusuf-hussien:paymob-java-sdk:1.1.0'
 ```
 
 ---
@@ -63,6 +65,7 @@ import com.paymob.sdk.models.enums.Currency;
 import com.paymob.sdk.services.intention.IntentionRequest;
 import com.paymob.sdk.services.intention.IntentionResponse;
 import java.util.List;
+import java.util.Map;
 
 Item item = Item.builder()
     .name("Blue T-Shirt (M)")

@@ -45,7 +45,7 @@ client.quickLinks().cancel(link.getId());
 |-------|------|----------|-------------|
 | `amountCents` | `int` | ✅ | Payment amount in cents |
 | `paymentMethods` | `int` | ✅ | Integration ID |
-| `currency` | `Currency` | ✅ | Payment currency |
+| `currency` | `Currency` | No | Payment currency |
 | `isLive` | `boolean` | ✅ | `true` for live, `false` for sandbox |
 | `fullName` | `String` | No | Customer full name |
 | `customerEmail` | `String` | No | Customer email |
@@ -55,3 +55,28 @@ client.quickLinks().cancel(link.getId());
 | `notificationUrl` | `String` | No | Webhook URL for this link |
 | `expiresAt` | `String` | No | Link expiry datetime (ISO 8601) |
 | `paymentLinkImage` | `File` | No | Custom image displayed on the link page |
+
+---
+
+## QuickLinkResponse Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `long` | Quick link ID (use with `cancel(int)`) |
+| `clientUrl` | `String` | The shareable payment URL to send to customers |
+| `shortenUrl` | `String` | Shortened version of `clientUrl` (if available) |
+| `state` | `String` | Link state: `"active"`, `"canceled"`, `"paid"` |
+| `amountCents` | `int` | Payment amount in cents |
+| `currency` | `String` | 3-letter currency code |
+| `description` | `String` | Payment description (if set) |
+| `referenceId` | `String` | Your internal reference (if set) |
+| `clientInfo` | `ClientInfo` | Nested customer details (fullName, email, phoneNumber) |
+| `success` | `boolean` | Whether the link was created successfully |
+| `message` | `String` | Additional status message |
+| `createdAt` | `String` | ISO 8601 creation timestamp |
+| `expiresAt` | `String` | ISO 8601 expiry timestamp (if set) |
+| `paidAt` | `String` | ISO 8601 timestamp when the link was paid (if paid) |
+| `notificationUrl` | `String` | Webhook URL for this link (if set) |
+| `redirectionUrl` | `String` | Post-payment redirect URL (if set) |
+| `order` | `Long` | Paymob order ID linked to the payment (after payment) |
+| `paymentLinkImage` | `String` | URL of the custom image (if set) |

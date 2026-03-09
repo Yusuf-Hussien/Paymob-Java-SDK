@@ -38,7 +38,7 @@ Supports **Egypt**, **KSA**, **UAE**, and **Oman** regions.
 <dependency>
     <groupId>io.github.yusuf-hussien</groupId>
     <artifactId>paymob-java-sdk</artifactId>
-    <version>1.1.0</version><!--verify the lates version-->
+    <version>1.1.0</version><!-- verify the latest version -->
 </dependency>
 ```
 
@@ -116,7 +116,7 @@ String checkoutUrl = client.intentions().getUnifiedCheckoutUrl(response);
 | Service | Accessed via | Description |
 |---------|-------------|-------------|
 | Payment Intention | `client.intentions()` | Create checkout sessions for cards, wallets, kiosk, and more |
-| Saved Cards | `client.savedCards()` | Charge tokenized cards (CIT with CVV, or MIT without) |
+| Saved Cards | `client.savedCards()` | CIT and MIT intention flows, plus MOTO charge execution with saved tokens |
 | Subscription Plans | `client.subscriptionPlans()` | Create and manage recurring billing plans |
 | Subscriptions | `client.subscriptions()` | Enroll customers, manage lifecycle, handle card changes |
 | Transaction Management | `client.transactions()` | Refund, void, and capture transactions |
@@ -161,7 +161,7 @@ try {
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
 | `secretKey` | ✅ Always | — | Secret key for API authentication |
-| `apiKey` | ✅ For subscriptions | — | Legacy API key for Bearer token auth |
+| `apiKey` | ✅ For Bearer-token services | — | API key used to generate Bearer tokens (subscriptions, inquiry, quick links) |
 | `publicKey` | ✅ For checkout URL & webhooks | — | Public key |
 | `hmacSecret` | ✅ For webhook validation | — | HMAC secret for signature verification |
 | `region` | No | `EGYPT` | API region — `EGYPT`, `KSA`, `UAE`, `OMAN` |
@@ -192,37 +192,12 @@ try {
 
 ## 📚 Documentation
 
-**Guides**
+Full documentation is organized under `docs/`.
 
-| Guide | Description |
-|-------|-------------|
-| [Payment Intention](docs/guides/payment-intention.md) | Core checkout flow — create an intention, redirect, handle webhook |
-| [Saved Cards](docs/guides/saved-cards.md) | CIT and MIT payments using tokenized cards |
-| [Quick Links](docs/guides/quick-links.md) | Create shareable payment links |
-| [Subscriptions](docs/guides/subscriptions.md) | Plan management and recurring billing lifecycle |
-| [Webhooks](docs/guides/webhooks.md) | HMAC verification, all event types, code examples |
-
-**API Reference**
-
-| Reference | Description |
-|-----------|-------------|
-| [Intention](docs/api/intention.md) | Create, update, retrieve intentions; generate checkout URLs |
-| [Transaction](docs/api/transaction.md) | Refund, void, capture |
-| [Transaction Inquiry](docs/api/transaction-inquiry.md) | Look up by merchant order ID, order ID, or transaction ID |
-| [Saved Cards](docs/api/saved-cards.md) | CIT and MIT request fields |
-| [Subscription Plans](docs/api/subscription-plans.md) | Plan CRUD, suspend, resume |
-| [Subscriptions](docs/api/subscriptions.md) | Enrollment, lifecycle, card management |
-| [Quick Links](docs/api/quick-links.md) | Create and cancel payment links |
-| [Webhooks](docs/api/webhooks.md) | WebhookValidator, WebhookEvent, all event types |
-
-**Other**
-
-| Document | Description |
-|----------|-------------|
-| [System Design](docs/internals/system-design.md) | Layers, components, auth system, HTTP pipeline, design decisions |
-| [Changelog](CHANGELOG.md) | Version history |
-| [Paymob Official Docs](https://docs.paymob.com) | Official Paymob API reference |
-| [Paymob API Postman Collections](https://github.com/PaymobAccept/API-Postman-Collections) | Official Postman collections |
+- Start here: [Documentation Home](docs/README.md)
+- Quick start flow: [Getting Paymob Credentials](docs/guides/getting-paymob-credentials.md) -> [Payment Intention](docs/guides/payment-intention.md) -> [Webhooks](docs/guides/webhooks.md)
+- API details: [API Index](docs/api/README.md)
+- Architecture notes: [System Design](docs/internals/system-design.md)
 
 ---
 

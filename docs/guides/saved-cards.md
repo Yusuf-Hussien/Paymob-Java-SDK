@@ -1,6 +1,6 @@
 # Saved Cards Guide
 
-This guide covers tokenizing cards during checkout and using them for future payments — both when the customer is present (CIT) and automated recurring charges (MIT).
+This guide covers tokenizing cards during checkout and using them for future payments, both when the customer is present (CIT) and for merchant-initiated charging flows (MIT + MOTO execution).
 
 ## How Card Tokenization Works
 
@@ -38,7 +38,7 @@ TokenizedPaymentResponse response = client.savedCards().processCitPayment(
 
 ## MIT — Merchant Initiated Transaction
 
-Use for automated charges with no customer present. No CVV required.
+Use this to create an intention for merchant-initiated charging with no customer present. No CVV is required.
 
 ```java
 import com.paymob.sdk.services.savedcard.MitPaymentRequest;
@@ -50,6 +50,18 @@ TokenizedPaymentResponse response = client.savedCards().processMitPayment(
         .currency("EGP")
         .merchantOrderId("RENEWAL-" + System.currentTimeMillis())  // Must be unique
         .build());
+```
+
+Then execute the MOTO payment using the saved card token and payment token:
+
+```java
+import com.paymob.sdk.services.savedcard.MotoCardPayRequest;
+import com.paymob.sdk.services.transaction.TransactionResponse;
+
+TransactionResponse charge = client.savedCards().executeMotoPayment(
+    new MotoCardPayRequest(
+        db.getCardToken(customerId),
+        paymentTokenFromMitFlow));
 ```
 
 **When to use:** Scheduled billing, auto top-ups, or any charge triggered by your system without customer interaction.

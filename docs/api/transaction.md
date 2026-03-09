@@ -12,7 +12,9 @@ Post-payment operations: refund, void, and capture.
 
 ### `refundTransaction(RefundRequest request) → TransactionResponse`
 
-Refunds a completed transaction. Partial refunds are supported by specifying `amountCents`. If `amountCents` is omitted, the full amount is refunded.
+Refunds a completed transaction. Partial refunds are supported by specifying `amountCents`.
+
+Note: in the SDK model, `amountCents` is an `int`. To avoid ambiguity, set it explicitly to the intended refund amount.
 
 ```java
 TransactionResponse refund = client.transactions().refundTransaction(
@@ -54,7 +56,7 @@ TransactionResponse captured = client.transactions().captureTransaction(
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `transactionId` | `long` | ✅ | ID of the transaction to refund |
-| `amountCents` | `int` | No | Amount to refund in cents. Defaults to full amount |
+| `amountCents` | `int` | Recommended | Amount to refund in cents. Set explicitly for clear behavior |
 
 ### VoidRequest
 
@@ -68,6 +70,25 @@ TransactionResponse captured = client.transactions().captureTransaction(
 |-------|------|----------|-------------|
 | `transactionId` | `long` | ✅ | ID of the authorized transaction to capture |
 | `amountCents` | `int` | ✅ | Amount to capture in cents |
+
+---
+
+## Response Fields (`TransactionResponse`)
+
+The same response model is used for refund, void, and capture operations.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `Long` | Transaction ID |
+| `success` | `Boolean` | Operation success flag |
+| `pending` | `Boolean` | Pending status |
+| `amountCents` | `Integer` | Transaction amount in cents |
+| `currency` | `String` | 3-letter currency code |
+| `isVoided` | `Boolean` | Whether transaction is voided |
+| `isRefunded` | `Boolean` | Whether transaction is refunded |
+| `isCaptured` | `Boolean` | Whether transaction is captured |
+| `order` | `Transaction.OrderInfo` | Nested order details |
+| `sourceData` | `Map<String, Object>` | Payment source metadata |
 
 ---
 
