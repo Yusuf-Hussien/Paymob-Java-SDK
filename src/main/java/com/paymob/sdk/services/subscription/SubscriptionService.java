@@ -195,6 +195,20 @@ public class SubscriptionService {
                 SubscriptionResponse.class, bearerTokenAuth);
     }
 
+    /**
+     * Registers or updates the webhook URL for a subscription.
+     *
+     * @param subscriptionId The subscription ID
+     * @param webhookUrl     Webhook endpoint to receive subscription callbacks
+     * @return Updated subscription status
+     */
+    public SubscriptionResponse registerWebhook(long subscriptionId, String webhookUrl) {
+        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
+        SubscriptionWebhookRequest request = new SubscriptionWebhookRequest(webhookUrl);
+        return httpClient.post("/api/acceptance/subscriptions/" + subscriptionId + "/register_webhook", request,
+                SubscriptionResponse.class, bearerTokenAuth);
+    }
+
     private static String buildListQuery(SubscriptionListRequest filters) {
         if (filters == null) {
             return "";

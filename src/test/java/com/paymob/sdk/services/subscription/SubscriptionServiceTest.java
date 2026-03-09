@@ -1,16 +1,21 @@
 package com.paymob.sdk.services.subscription;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
 import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.http.HttpClient;
 import com.paymob.sdk.services.intention.IntentionRequest;
 import com.paymob.sdk.services.intention.IntentionResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 class SubscriptionServiceTest {
 
@@ -112,6 +117,19 @@ class SubscriptionServiceTest {
 
                 verify(httpClient).put(eq("/api/acceptance/subscriptions/50"),
                                 any(SubscriptionUpdateRequest.class), eq(SubscriptionResponse.class),
+                                same(bearerTokenAuth));
+        }
+
+        @Test
+        void registerWebhook_usesCorrectEndpoint() {
+                when(httpClient.post(anyString(), any(), eq(SubscriptionResponse.class), eq(bearerTokenAuth)))
+                                .thenReturn(new SubscriptionResponse());
+
+                service.registerWebhook(70L, "https://example.com/sub-webhook");
+
+                verify(httpClient).setBaseUrl(PaymobRegion.EGYPT.getBaseUrl());
+                verify(httpClient).post(eq("/api/acceptance/subscriptions/70/register_webhook"),
+                                any(SubscriptionWebhookRequest.class), eq(SubscriptionResponse.class),
                                 same(bearerTokenAuth));
         }
 }
