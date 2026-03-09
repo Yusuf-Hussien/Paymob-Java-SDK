@@ -1,14 +1,21 @@
 package com.paymob.sdk.services.savedcard;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.PaymobRegion;
 import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.http.HttpClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import com.paymob.sdk.services.transaction.TransactionResponse;
 
 class SavedCardServiceTest {
 
@@ -66,4 +73,17 @@ class SavedCardServiceTest {
         verify(httpClient).post(eq("/v1/intention/"), any(MitPaymentRequest.class),
                 eq(TokenizedPaymentResponse.class), same(authStrategy));
     }
+
+        @Test
+        void executeMotoPayment_usesPayEndpointWithoutAuthHeader() {
+                when(httpClient.post(anyString(), any(), eq(TransactionResponse.class), isNull()))
+                                .thenReturn(new TransactionResponse());
+
+                MotoCardPayRequest request = new MotoCardPayRequest("tok_456", "payment_token_123");
+                service.executeMotoPayment(request);
+
+                verify(httpClient).setBaseUrl(PaymobRegion.EGYPT.getBaseUrl());
+                verify(httpClient).post(eq("/api/acceptance/payments/pay"), any(MotoCardPayRequest.class),
+                                eq(TransactionResponse.class), isNull());
+        }
 }

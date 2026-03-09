@@ -3,6 +3,7 @@ package com.paymob.sdk.services.savedcard;
 import com.paymob.sdk.core.PaymobConfig;
 import com.paymob.sdk.core.auth.AuthStrategy;
 import com.paymob.sdk.http.HttpClient;
+import com.paymob.sdk.services.transaction.TransactionResponse;
 
 /**
  * Service for saved card tokenization payments.
@@ -42,5 +43,17 @@ public class SavedCardService {
     public TokenizedPaymentResponse processMitPayment(MitPaymentRequest request) {
         httpClient.setBaseUrl(config.getRegion().getBaseUrl());
         return httpClient.post("/v1/intention/", request, TokenizedPaymentResponse.class, authStrategy);
+    }
+
+    /**
+     * Executes MOTO payment using saved card token and payment token.
+     * This call completes the MIT charge without customer interaction.
+     *
+     * @param request MOTO payment payload with card token and payment token
+     * @return Transaction response for the charge attempt
+     */
+    public TransactionResponse executeMotoPayment(MotoCardPayRequest request) {
+        httpClient.setBaseUrl(config.getRegion().getBaseUrl());
+        return httpClient.post("/api/acceptance/payments/pay", request, TransactionResponse.class, null);
     }
 }
